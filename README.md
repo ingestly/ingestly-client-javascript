@@ -18,15 +18,6 @@ Also, Ingestly can be implemented seamlessly into your existing web site with in
 - Easy to start. You can start using Ingestly within 2 minutes for free if you already have a trial account on Fastly and GCP.
 - WebKit's ITP friendly. The endpoint issues 1st party cookie with secure flags.
 
-**Ingestly provides:**
-
-- Completely server-less. Fastly and Google manages all of your infrastructure for Ingestly. No maintenance resource required.
-- Near real-time data in Google BigQuery. You can get the latest data in less than seconds just after user's activity.
-- Fastest response time for beacons. The endpoint is Fastly's global edge nodes, no backend, response is HTTP 204 and SDK uses ASYNC request.
-- Direct ingestion into Google BigQuery. You don't need to configure any complicated integrations, no need to export/import by batches.
-- Easy to start. You can start using Ingestly within 2 minutes for free if you already have a trial account on Fastly and GCP.
-- WebKit's ITP friendly. The endpoint issues 1st party cookie with secure flags.
-
 ## Implementation
 
 ### Prerequisites
