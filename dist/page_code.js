@@ -36,7 +36,7 @@
             contentAttr: {},
             campaignCode: Ingestly.getQueryVal('cid'),
             campaignName: Ingestly.getQueryVal('utm_campaign'),
-            campaignsource: Ingestly.getQueryVal('utm_source'),
+            campaignSource: Ingestly.getQueryVal('utm_source'),
             campaignMedium: Ingestly.getQueryVal('utm_medium'),
             campaignTerm: Ingestly.getQueryVal('utm_term'),
             campaignContent: Ingestly.getQueryVal('utm_content'),
