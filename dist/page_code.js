@@ -11,6 +11,9 @@
             prefix: 'ingestly',
             cookieDomain: 'example.com',
             options: {
+                unload: {
+                    enable: true
+                },
                 scroll: {
                     enable: true,
                     threshold: 2,
@@ -20,14 +23,16 @@
                 clicks: {
                     enable: true,
                     targetAttr: 'data-trackable'
+                },
+                media: {
+                    enable: true,
+                    heartbeat: 5
                 }
             }
         }, {
             userId: '',
             userStatus: '',
             userAttr: {},
-            pageUrl: window.parent.document.location.href,
-            pageReferrer: window.parent.document.referrer,
             pageTitle: window.parent.document.title,
             pageAttr: {},
             contentId: '',

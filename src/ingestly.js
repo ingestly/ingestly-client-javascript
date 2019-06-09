@@ -5,39 +5,40 @@ import Utils from './utils';
 
 const
     sdkName = 'JS',
-    sdkVersion = '0.1.0',
+    sdkVersion = '0.2.0',
     initTimestamp = new Date();
 
-let idm, emitter, events, utils,
-    eventHandlerKeys = {},
+let idm, emitter, events, utils, parsedUrl, parsedReferrer,
+    eventHandlerKeys = {media: []},
     prevTimestamp = new Date();
 
 export default class Ingestly {
     constructor() {
         this.dataModel = {};
         utils = new Utils();
+        parsedUrl = utils.parseUrl(window.parent.document.location.href);
+        parsedReferrer = utils.parseUrl(window.parent.document.referrer);
     }
 
     init(config, dataModel = {}) {
-        if (typeof idm === 'undefined') {
-            idm = new IDM({
-                prefix: config.prefix
-            });
-        }
-        if (typeof emitter === 'undefined') {
-            emitter = new Emitter({
-                endpoint: config.endpoint,
-                apiKey: config.apiKey,
-                sdkName: sdkName,
-                sdkVersion: sdkVersion,
-                prefix: config.prefix,
-                cookieDomain: config.cookieDomain,
-                deviceId: idm.deviceId,
-                rootId: idm.rootId
-            });
-        }
+        idm = new IDM({
+            prefix: config.prefix
+        });
+        emitter = new Emitter({
+            endpoint: config.endpoint,
+            apiKey: config.apiKey,
+            sdkName: sdkName,
+            sdkVersion: sdkVersion,
+            prefix: config.prefix,
+            cookieDomain: config.cookieDomain,
+            deviceId: idm.deviceId,
+            rootId: idm.rootId
+        });
 
         this.dataModel = dataModel;
+        this.dataModel['pur'] = parsedUrl;
+        this.dataModel['prf'] = parsedReferrer;
+
 
         if (config.eventName && config.eventFrequency && typeof events === 'undefined') {
             events = new Events({
@@ -55,6 +56,21 @@ export default class Ingestly {
                     this.trackAction('rum', 'page', {});
                 }, false);
             }
+        }
+
+        if (config.options && config.options.unload && config.options.unload.enable) {
+            let unloadEvent;
+            if ('onbeforeunload' in window.parent) {
+                unloadEvent = 'beforeunload';
+            } else if ('onpagehide' in window.parent) {
+                unloadEvent = 'pagehide';
+            } else {
+                unloadEvent = 'unload';
+            }
+            events.removeListener(eventHandlerKeys['unload']);
+            eventHandlerKeys['unload'] = events.addListener(window.parent, unloadEvent, () => {
+                this.trackAction('unload', 'page', {});
+            }, false);
         }
 
         if (config.options && config.options.scroll && config.options.scroll.enable) {
@@ -75,9 +91,9 @@ export default class Ingestly {
                         setTimeout(() => {
                             if (currentVal > prevVal) {
                                 this.trackAction('scroll', 'page', {
-                                    'pageHeight': result.dHeight,
-                                    'scrollDepth': result.dScrollUntil,
-                                    'scrollUnit': scrollUnit
+                                    'pgH': result.dHeight,
+                                    'srDepth': result.dScrollUntil,
+                                    'srUnit': scrollUnit
                                 });
                                 prevVal = currentVal;
                             }
@@ -96,15 +112,40 @@ export default class Ingestly {
                 if (trackableElement) {
                     element = trackableElement.element;
                     this.trackAction('click', trackableElement.category, {
-                        clickTag: element.tagName,
-                        clickId: element.id || undefined,
-                        clickClass: element.className || undefined,
-                        clickPath: trackableElement.path || undefined,
-                        clickLink: element.href || undefined,
-                        clickAttr: element.dataset || undefined
+                        clTag: element.tagName,
+                        clId: element.id || undefined,
+                        clClass: element.className || undefined,
+                        clPath: trackableElement.path || undefined,
+                        clLink: element.href || undefined,
+                        clAttr: element.dataset || undefined
                     });
                 }
             }, false);
+        }
+
+        if (config.options && config.options.media && config.options.media.enable) {
+            const heartbeat = config.options.media.heartbeat || 5;
+            const targetEvents = ['play', 'pause', 'ended'];
+            let flags = {};
+            for (let i = 0; i < targetEvents.length; i++) {
+                events.removeListener(eventHandlerKeys['media'][targetEvents[i]]);
+                eventHandlerKeys['media'][targetEvents[i]] = events.addListener(window.parent.document.body, targetEvents[i], (event) => {
+                    this.trackAction(event.type, event.target.tagName.toLowerCase(), utils.getMediaInfo(event.target));
+                }, {capture: true});
+            }
+
+            events.removeListener(eventHandlerKeys['media']['timeupdate']);
+            eventHandlerKeys['media']['timeupdate'] = events.addListener(window.parent.document, 'timeupdate', (event) => {
+                if (flags[event.target.src]) {
+                    return false;
+                }
+                flags[event.target.src] = setTimeout(() => {
+                    if (event.target.paused !== true && event.target.ended !== true) {
+                        this.trackAction(event.type, event.target.tagName.toLowerCase(), utils.getMediaInfo(event.target));
+                    }
+                    flags[event.target.src] = false;
+                }, heartbeat * 1000);
+            }, {capture: true});
         }
     }
 
@@ -117,11 +158,9 @@ export default class Ingestly {
                 action: action,
                 category: category,
                 client: utils.getClientInfo(),
-                performance: utils.getPerformanceInfo(),
+                pt: utils.getPerformanceInfo(),
                 sinceInitMs: now.getTime() - initTimestamp.getTime(),
-                sincePrevMs: now.getTime() - prevTimestamp.getTime(),
-                parsedUrl: utils.parseUrl(this.dataModel.pageUrl),
-                parsedReferrer: utils.parseUrl(this.dataModel.pageReferrer)
+                sincePrevMs: now.getTime() - prevTimestamp.getTime()
             }
         ]);
         prevTimestamp = now;
@@ -142,18 +181,6 @@ export default class Ingestly {
     }
 
     getQueryVal(key) {
-        const search = window.parent.location.search.slice(1);
-        let result = '';
-        if (search !== '') {
-            const q = search.split('&');
-            const l = q.length;
-            for (let i = 0; i < l; ++i) {
-                const pair = q[i].split('=');
-                if (decodeURIComponent(pair[0]) === key) {
-                    result = decodeURIComponent(pair[1]);
-                }
-            }
-        }
-        return result;
+        return parsedUrl.query[key] ? parsedUrl.query[key] : '';
     }
 }
