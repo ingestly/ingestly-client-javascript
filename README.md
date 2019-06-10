@@ -44,13 +44,12 @@ npm run build
 #### Configuration
 
 1. Open `./dist/page_code.js`
-2. Change configuration variables between line 7 and 12:
+2. Change configuration variables between line 7 and 33:
     - endpoint : a hostname of Ingestly Endpoint you provisioned.
     - apiKey : an API key for the endpoint. This value must be listed as `true` in Fastly's Custom VCL for Ingestly.
     - eventName : the SDK dispatches a recurring event based on a timing of requestAnimationFrame. You can specify a name of this event.
     - eventFrequency : the recurring event is throttled by this interval in millisecond. Set a small number if you want to make the SDK sensitive.
     - prefix : used for defining a key name of localStorage and Cookie.
-    - cookieDomain : a domain name of your website. (generally you should remove a sub-domain to use the cookie across sites under the same domain name.)
 3. Save the file.
 
 #### Place .js files
@@ -99,8 +98,9 @@ You can enable optional tracking features.
 - Basically, SDK uses a global namespace `Ingestly`.
 - A custom event `ingestlyRecurringEvent` (or your specified name) can be used for observing elements repeatedly.
 
-### Ingestly.init(config, dataModel)
+### Ingestly.config(config)
 
+### Ingestly.init(dataModel)
 
 ### Ingestly.trackPage(eventContext)
 

@@ -44,15 +44,14 @@ npm run build
 
 #### 構成
 
-1. Open `./dist/page_code.js`
-2. Change configuration variables between line 7 and 12:
-    - endpoint : a hostname of Ingestly Endpoint you provisioned.
-    - apiKey : an API key for the endpoint. This value must be listed as `true` in Fastly's Custom VCL for Ingestly.
-    - eventName : the SDK dispatches a recurring event based on a timing of requestAnimationFrame. You can specify a name of this event.
-    - eventFrequency : the recurring event is throttled by this interval in millisecond. Set a small number if you want to make the SDK sensitive.
-    - prefix : used for defining a key name of localStorage and Cookie.
-    - cookieDomain : a domain name of your website. (generally you should remove a sub-domain to use the cookie across sites under the same domain name.)
-3. Save the file.
+1. `./dist/page_code.js` を開きます
+2. 7行目から33行目の設定変数を変更します：
+    - endpoint : 構成した Ingestly Endpoint のホスト名
+    - apiKey : エンドポイント用のAPIキー。IngestlyのFastly用Custom VCLの中で `true` としてリストされている必要があります
+    - eventName : SDKはrequestAnimationFrameのタイミングに基づいて再帰的にイベントを発生させます。ここで発生させるイベント名を指定できます
+    - eventFrequency : 再帰的イベントはここでミリ秒で指定した間隔でスロットリングされます。SDKの検知精度を上げる場合は小さい値にします
+    - prefix : localStorage と Cookie で使うキー名の定義に用いられます
+3. ファイルを保存します
 
 #### .js ファイルの設置
 
@@ -100,8 +99,9 @@ npm run build
 - SDKは基本的に グローバル名前空間 `Ingestly` を利用します
 - カスタムイベント `ingestlyRecurringEvent` （または指定した名前）を要素の周期的な観測に利用できます
 
-### Ingestly.init(config, dataModel)
+### Ingestly.config(config)
 
+### Ingestly.init(dataModel)
 
 ### Ingestly.trackPage(eventContext)
 
