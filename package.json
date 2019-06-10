@@ -1,10 +1,11 @@
 {
   "name": "ingestly-client-javascript",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Ingestly Client JavaScript SDK for modern web analytics.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
+    "jsdoc": "jsdoc ./src -c jsdoc.conf.json",
     "lint": "eslint ./src"
   },
   "repository": {
@@ -24,6 +25,7 @@
     "@babel/preset-env": "^7.4.5",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.6",
+    "jsdoc": "^3.6.2",
     "eslint": "^5.16.0",
     "webpack": "^4.32.2",
     "webpack-cli": "^3.3.2"

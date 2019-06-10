@@ -128,8 +128,8 @@ export default class {
     getDeviceId(callback) {
         let url = generateDestination('ingestly-sync');
         url += `&deviceId=${config.deviceId}`;
-        if ('fetch' in window.parent && typeof window.parent.fetch === 'function') {
-            window.parent.fetch(url).then((response) => {
+        if ('fetch' in window[config.target] && typeof window[config.target].fetch === 'function') {
+            window[config.target].fetch(url).then((response) => {
                     return response.json();
                 }
             ).then((result) => {

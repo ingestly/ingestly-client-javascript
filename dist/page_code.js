@@ -3,13 +3,14 @@
     if ('querySelector' in window.parent.document &&
         'addEventListener' in window.parent
     ) {
-        Ingestly.init({
+
+        Ingestly.config({
             endpoint: 'stat.example.com',
             apiKey: '2ee204330a7b2701a6bf413473fcc486',
             eventName: 'ingestlyRecurringEvent',
             eventFrequency: 250,
             prefix: 'ingestly',
-            cookieDomain: 'example.com',
+            targetWindow: 'self',
             options: {
                 unload: {
                     enable: true
@@ -29,7 +30,9 @@
                     heartbeat: 5
                 }
             }
-        }, {
+        });
+
+        Ingestly.init({
             userId: '',
             userStatus: '',
             userAttr: {},

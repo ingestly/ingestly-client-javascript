@@ -5,40 +5,53 @@ import Utils from './utils';
 
 const
     sdkName = 'JS',
-    sdkVersion = '0.2.0',
+    sdkVersion = '0.3.0',
     initTimestamp = new Date();
 
-let idm, emitter, events, utils, parsedUrl, parsedReferrer,
+let config, targetWindow, idm, emitter, events, utils, parsedUrl, parsedReferrer,
     eventHandlerKeys = {media: []},
     prevTimestamp = new Date();
 
 export default class Ingestly {
+
     constructor() {
         this.dataModel = {};
-        utils = new Utils();
-        parsedUrl = utils.parseUrl(window.parent.document.location.href);
-        parsedReferrer = utils.parseUrl(window.parent.document.referrer);
     }
 
-    init(config, dataModel = {}) {
+    /**
+     * Configure Ingestly SDK.
+     * @param  {Object} configObj Configuration variables.
+     */
+    config(configObj) {
+        config = configObj;
+        utils = new Utils();
         idm = new IDM({
-            prefix: config.prefix
+            prefix: config.prefix,
+            target: config.targetWindow
         });
         emitter = new Emitter({
             endpoint: config.endpoint,
             apiKey: config.apiKey,
             sdkName: sdkName,
             sdkVersion: sdkVersion,
-            prefix: config.prefix,
-            cookieDomain: config.cookieDomain,
             deviceId: idm.deviceId,
-            rootId: idm.rootId
+            rootId: idm.rootId,
+            target: config.targetWindow
         });
+        targetWindow = config.targetWindow;
+        parsedUrl = utils.parseUrl(window[targetWindow].document.location.href);
+        parsedReferrer = utils.parseUrl(window[targetWindow].document.referrer);
+    }
+
+    /**
+     * Initialize a page level variables.
+     * @param  {Object} dataModel Data model.
+     */
+    init(dataModel) {
 
         this.dataModel = dataModel;
         this.dataModel['pur'] = parsedUrl;
         this.dataModel['prf'] = parsedReferrer;
-
 
         if (config.eventName && config.eventFrequency && typeof events === 'undefined') {
             events = new Events({
@@ -47,12 +60,12 @@ export default class Ingestly {
             });
         }
 
-        if ('performance' in window.parent) {
-            if (window.parent.document.readyState === "interactive" || window.parent.document.readyState === "complete") {
+        if ('performance' in window[targetWindow]) {
+            if (window[targetWindow].document.readyState === "interactive" || window[targetWindow].document.readyState === "complete") {
                 this.trackAction('rum', 'page', {});
             } else {
                 events.removeListener(eventHandlerKeys['performance']);
-                eventHandlerKeys['performance'] = events.addListener(window.parent.document, 'DOMContentLoaded', () => {
+                eventHandlerKeys['performance'] = events.addListener(window[targetWindow].document, 'DOMContentLoaded', () => {
                     this.trackAction('rum', 'page', {});
                 }, false);
             }
@@ -60,15 +73,15 @@ export default class Ingestly {
 
         if (config.options && config.options.unload && config.options.unload.enable) {
             let unloadEvent;
-            if ('onbeforeunload' in window.parent) {
+            if ('onbeforeunload' in window[targetWindow]) {
                 unloadEvent = 'beforeunload';
-            } else if ('onpagehide' in window.parent) {
+            } else if ('onpagehide' in window[targetWindow]) {
                 unloadEvent = 'pagehide';
             } else {
                 unloadEvent = 'unload';
             }
             events.removeListener(eventHandlerKeys['unload']);
-            eventHandlerKeys['unload'] = events.addListener(window.parent, unloadEvent, () => {
+            eventHandlerKeys['unload'] = events.addListener(window[targetWindow], unloadEvent, () => {
                 this.trackAction('unload', 'page', {});
             }, false);
         }
@@ -78,7 +91,7 @@ export default class Ingestly {
             const limit = config.options.scroll.threshold * 1000 || 2 * 1000;
             let result = {}, currentVal = 0, prevVal = 0, scrollUnit = 'percent';
             events.removeListener(eventHandlerKeys['scroll']);
-            eventHandlerKeys['scroll'] = events.addListener(window.parent, config.eventName, () => {
+            eventHandlerKeys['scroll'] = events.addListener(window[targetWindow], config.eventName, () => {
                 result = utils.getScrollDepth();
                 if (result.dIsVisible !== 'hidden' && result.dIsVisible !== 'prerender') {
                     if (config.options.scroll.unit === 'percent') {
@@ -105,7 +118,7 @@ export default class Ingestly {
 
         if (config.options && config.options.clicks && config.options.clicks.enable) {
             events.removeListener(eventHandlerKeys['click']);
-            eventHandlerKeys['click'] = events.addListener(window.parent.document.body, 'click', (clickEevent) => {
+            eventHandlerKeys['click'] = events.addListener(window[targetWindow].document.body, 'click', (clickEevent) => {
                 const targetAttribute = config.options.clicks.targetAttr || 'data-trackable';
                 const trackableElement = utils.queryMatch('a, button, input, [role="button"]', clickEevent.target, targetAttribute);
                 let element = null;
@@ -129,13 +142,13 @@ export default class Ingestly {
             let flags = {};
             for (let i = 0; i < targetEvents.length; i++) {
                 events.removeListener(eventHandlerKeys['media'][targetEvents[i]]);
-                eventHandlerKeys['media'][targetEvents[i]] = events.addListener(window.parent.document.body, targetEvents[i], (event) => {
+                eventHandlerKeys['media'][targetEvents[i]] = events.addListener(window[targetWindow].document.body, targetEvents[i], (event) => {
                     this.trackAction(event.type, event.target.tagName.toLowerCase(), utils.getMediaInfo(event.target));
                 }, {capture: true});
             }
 
             events.removeListener(eventHandlerKeys['media']['timeupdate']);
-            eventHandlerKeys['media']['timeupdate'] = events.addListener(window.parent.document, 'timeupdate', (event) => {
+            eventHandlerKeys['media']['timeupdate'] = events.addListener(window[targetWindow].document, 'timeupdate', (event) => {
                 if (flags[event.target.src]) {
                     return false;
                 }
@@ -149,6 +162,12 @@ export default class Ingestly {
         }
     }
 
+    /**
+     * Track an event with additional data.
+     * @param  {String} action Action name.
+     * @param  {String} category Category name.
+     * @param  {Object} eventContext Additional data.
+     */
     trackAction(action = 'unknown', category = 'unknown', eventContext = {}) {
         const now = new Date();
         const record = utils.mergeObj([
@@ -176,10 +195,19 @@ export default class Ingestly {
         }
     }
 
+    /**
+     * Track a pageview event.
+     * @param  {Object} eventContext Additional data.
+     */
     trackPage(eventContext = {}) {
         this.trackAction('view', 'page', eventContext);
     }
 
+    /**
+     * Get a value for specified key name in GET parameter.
+     * @param  {String} key A key name.
+     * @return {String} A value for the specified key.
+     */
     getQueryVal(key) {
         return parsedUrl.query[key] ? parsedUrl.query[key] : '';
     }
