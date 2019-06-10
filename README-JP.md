@@ -46,11 +46,11 @@ npm run build
 
 1. `./dist/page_code.js` を開きます
 2. 7行目から33行目の設定変数を変更します：
-    - endpoint : 構成した Ingestly Endpoint のホスト名
-    - apiKey : エンドポイント用のAPIキー。IngestlyのFastly用Custom VCLの中で `true` としてリストされている必要があります
-    - eventName : SDKはrequestAnimationFrameのタイミングに基づいて再帰的にイベントを発生させます。ここで発生させるイベント名を指定できます
-    - eventFrequency : 再帰的イベントはここでミリ秒で指定した間隔でスロットリングされます。SDKの検知精度を上げる場合は小さい値にします
-    - prefix : localStorage と Cookie で使うキー名の定義に用いられます
+    - `endpoint` : 構成した Ingestly Endpoint のホスト名
+    - `apiKey` : エンドポイント用のAPIキー。IngestlyのFastly用Custom VCLの中で `true` としてリストされている必要があります
+    - `eventName` : SDKはrequestAnimationFrameのタイミングに基づいて再帰的にイベントを発生させます。ここで発生させるイベント名を指定できます
+    - `eventFrequency` : 再帰的イベントはここでミリ秒で指定した間隔でスロットリングされます。SDKの検知精度を上げる場合は小さい値にします
+    - `prefix` : localStorage と Cookie で使うキー名の定義に用いられます
 3. ファイルを保存します
 
 #### .js ファイルの設置
@@ -71,7 +71,7 @@ npm run build
 ### スクロール深度
 
 - 高さ固定のページと無限スクロール（遅延読み込み）に対応するスクロール深度計測
-- `init()` の中で、 `options.scroll.enable` に対して `true` を設定し、設定値を調整します：
+- `config()` の中で、 `options.scroll.enable` に対して `true` を設定し、設定値を調整します：
 
 |variable|example|description|
 |:---|:---|:---|
@@ -84,7 +84,7 @@ npm run build
 ### data-trackable によるクリック計測
 
 - クリック計測はクリックされた要素（またはその親要素）が、指定した `data-*` 属性を持っている場合に発動します
-- `init()` の中で、 `options.clicks.enable` に対して `true` を設定し、設定値を調整します：
+- `config()` の中で、 `options.clicks.enable` に対して `true` を設定し、設定値を調整します：
 
 |variable|example|description|
 |:---|:---|:---|

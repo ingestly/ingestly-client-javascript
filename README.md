@@ -45,11 +45,11 @@ npm run build
 
 1. Open `./dist/page_code.js`
 2. Change configuration variables between line 7 and 33:
-    - endpoint : a hostname of Ingestly Endpoint you provisioned.
-    - apiKey : an API key for the endpoint. This value must be listed as `true` in Fastly's Custom VCL for Ingestly.
-    - eventName : the SDK dispatches a recurring event based on a timing of requestAnimationFrame. You can specify a name of this event.
-    - eventFrequency : the recurring event is throttled by this interval in millisecond. Set a small number if you want to make the SDK sensitive.
-    - prefix : used for defining a key name of localStorage and Cookie.
+    - `endpoint` : a hostname of Ingestly Endpoint you provisioned.
+    - `apiKey` : an API key for the endpoint. This value must be listed as `true` in Fastly's Custom VCL for Ingestly.
+    - `eventName` : the SDK dispatches a recurring event based on a timing of requestAnimationFrame. You can specify a name of this event.
+    - `eventFrequency` : the recurring event is throttled by this interval in millisecond. Set a small number if you want to make the SDK sensitive.
+    - `prefix` : used for defining a key name of localStorage and Cookie.
 3. Save the file.
 
 #### Place .js files
@@ -69,7 +69,7 @@ You can enable optional tracking features.
 ### Scroll Depth
 
 - Scroll depth tracking for both fixed page and infinity scroll (lazy-load) page.
-- In `init()`, set `true` for `options.scroll.enable` and adjust values:
+- In `config()`, set `true` for `options.scroll.enable` and adjust values:
 
 |variable|example|description|
 |:---|:---|:---|
@@ -82,7 +82,7 @@ You can enable optional tracking features.
 ### Clicks with data-trackable
 
 - Click tracking is triggered if the clicked element (or its parent) has the specified `data-*` attribution. 
-- In `init()`, set `true` for `options.clicks.enable` and adjust values:
+- In `config()`, set `true` for `options.clicks.enable` and adjust values:
 
 |variable|example|description|
 |:---|:---|:---|
