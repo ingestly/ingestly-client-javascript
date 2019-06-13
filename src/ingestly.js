@@ -88,6 +88,7 @@ export default class Ingestly {
 
         if (config.options && config.options.scroll && config.options.scroll.enable) {
             const each = config.options.scroll.granularity || 20;
+            const steps = 100 / each;
             const limit = config.options.scroll.threshold * 1000 || 2 * 1000;
             let result = {}, currentVal = 0, prevVal = 0, scrollUnit = 'percent';
             events.removeListener(eventHandlerKeys['scroll']);
@@ -95,20 +96,21 @@ export default class Ingestly {
                 result = utils.getScrollDepth();
                 if (result.dIsVisible !== 'hidden' && result.dIsVisible !== 'prerender') {
                     if (config.options.scroll.unit === 'percent') {
-                        currentVal = Math.round(result.dScrollRate * 100 / each * 100) * each / 100;
+                        currentVal = Math.round(result.dScrollRate * steps) * each;
                     } else {
                         currentVal = Math.round(result.dScrollUntil * 100) / 100;
                         scrollUnit = 'pixel';
                     }
-                    if (currentVal > prevVal && currentVal >= 0) {
+                    if ((scrollUnit === 'percent' && currentVal > prevVal && currentVal >= 0)
+                        || (scrollUnit === 'pixel' && currentVal > prevVal && currentVal >= each)) {
                         setTimeout(() => {
                             if (currentVal > prevVal) {
                                 this.trackAction('scroll', 'page', {
                                     'pgH': result.dHeight,
-                                    'srDepth': result.dScrollUntil,
+                                    'srDepth': currentVal,
                                     'srUnit': scrollUnit
                                 });
-                                prevVal = currentVal;
+                                prevVal = (scrollUnit === 'percent') ? currentVal : currentVal + each;
                             }
                         }, limit);
                     }

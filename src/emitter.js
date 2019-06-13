@@ -22,7 +22,7 @@ const xhr = (url, callback) => {
 
 const generateDestination = (feature) => {
     const timestamp = (+new Date).toString(36),
-        protocol = (document.location && document.location.protocol === 'http:') ? 'http:' : 'http:';
+        protocol = (document.location && document.location.protocol === 'https:') ? 'htts:' : 'http:';
     return `${protocol}//${config.endpoint}/${feature}/${timestamp}/?key=${config.apiKey}&sdk=${config.sdkName}-${config.sdkVersion}`;
 };
 
