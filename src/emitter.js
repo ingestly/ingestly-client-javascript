@@ -14,7 +14,7 @@ const xhr = (url, callback) => {
         };
     }
     xhr.open('GET', url, true);
-    xhr.timeout = 2000;
+    xhr.timeout = 4000;
     xhr.withCredentials = true;
     xhr.send();
     return true;
@@ -113,12 +113,20 @@ export default class {
 
         if ('sendBeacon' in navigator && typeof navigator.sendBeacon === 'function' && status === true) {
             try {
-                status = navigator.sendBeacon(url, null);
+                navigator.sendBeacon(url);
             } catch (error) {
                 status = false;
             }
             if (!status) {
-                xhr(url);
+                if ('fetch' in window[config.target] && typeof window[config.target].fetch === 'function') {
+                    const controller = new AbortController();
+                    const signal = controller.signal;
+                    const option = {signal, method: 'POST', cache: 'no-store', keepalive: true};
+                    setTimeout(() => controller.abort(), 4000);
+                    window[config.target].fetch(url, option);
+                } else {
+                    xhr(url);
+                }
             }
         } else {
             xhr(url);
@@ -127,9 +135,13 @@ export default class {
 
     getDeviceId(callback) {
         let url = generateDestination('ingestly-sync');
-        url += `&deviceId=${config.deviceId}`;
+        url += `&ingestlyId=${config.deviceId}`;
         if ('fetch' in window[config.target] && typeof window[config.target].fetch === 'function') {
-            window[config.target].fetch(url).then((response) => {
+            const controller = new AbortController();
+            const signal = controller.signal;
+            const option = {signal, method: 'GET', cache: 'no-store', keepalive: true};
+            setTimeout(() => controller.abort(), 4000);
+            window[config.target].fetch(url, option).then((response) => {
                     return response.json();
                 }
             ).then((result) => {
