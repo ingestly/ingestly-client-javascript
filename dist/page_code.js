@@ -3,7 +3,6 @@
     if ('querySelector' in window.parent.document &&
         'addEventListener' in window.parent
     ) {
-
         Ingestly.config({
             endpoint: 'stat.example.com',
             apiKey: '2ee204330a7b2701a6bf413473fcc486',
@@ -15,15 +14,21 @@
                 unload: {
                     enable: true
                 },
+                clicks: {
+                    enable: true,
+                    targetAttr: 'data-trackable'
+                },
                 scroll: {
                     enable: true,
                     threshold: 2,
                     granularity: 20,
                     unit: 'percent'
                 },
-                clicks: {
+                read: {
                     enable: true,
-                    targetAttr: 'data-trackable'
+                    threshold: 2,
+                    granularity: 20,
+                    target: window.document.getElementById('article')
                 },
                 media: {
                     enable: true,

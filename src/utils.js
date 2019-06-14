@@ -11,7 +11,7 @@ export default class {
         };
     }
 
-    getClientInfo() {
+    getClientInfo(targetWindow) {
         const orientation = screen.orientation || screen.mozOrientation || screen.msOrientation;
         const ua = navigator.userAgent;
         let deviceType, deviceOs;
@@ -54,10 +54,10 @@ export default class {
         }
 
         return {
-            vpH: window.parent.innerHeight,
-            vpW: window.parent.innerWidth,
-            scH: window.parent.screen.height,
-            scW: window.parent.screen.width,
+            vpH: window[targetWindow].innerHeight,
+            vpW: window[targetWindow].innerWidth,
+            scH: window[targetWindow].screen.height,
+            scW: window[targetWindow].screen.width,
             scOrientation: orientation,
             dvType: deviceType,
             dvOs: deviceOs,
@@ -89,24 +89,80 @@ export default class {
         }
     }
 
-    getScrollDepth() {
-        const viewportHeight = window.parent.innerHeight;
-        const documentHeight = window.parent.document.documentElement.scrollHeight;
-        const documentIsVisible = window.parent.document.visibilityState || 'unknown';
-        const documentVisibleTop = 'pageYOffset' in window.parent ?
-            window.parent.pageYOffset :
-            (window.parent.document.documentElement || window.parent.document.body.parentNode || window.parent.document.body).scrollTop;
+    getVisibility(targetElement, targetWindow) {
+        let textLength = 0, targetRect = {};
+        try {
+            targetRect = targetElement.getBoundingClientRect();
+            textLength = targetElement.innerText.length;
+        } catch (e) {
+            targetRect = {};
+        }
+
+        const viewportHeight = window[targetWindow].innerHeight;
+        const documentHeight = window[targetWindow].document.documentElement.scrollHeight;
+        const documentIsVisible = window[targetWindow].document.visibilityState || 'unknown';
+        const documentVisibleTop = 'pageYOffset' in window[targetWindow] ?
+            window[targetWindow].pageYOffset :
+            (window[targetWindow].document.documentElement || window[targetWindow].document.body.parentNode || window[targetWindow].document.body).scrollTop;
         const documentVisibleBottom = documentVisibleTop + viewportHeight;
+        const targetHeight = targetRect.height;
+        const targetMarginTop = targetRect.top <= 0 ? 0 : targetRect.top;
+        const targetMarginBottom = (targetRect.bottom - viewportHeight) * -1 <= 0 ? 0 : (targetRect.bottom - viewportHeight) * -1;
         const documentScrollUntil = documentVisibleBottom;
         const documentScrollRate = documentVisibleBottom / documentHeight;
 
+        let targetVisibleTop = null, targetVisibleBottom = null, isInView = false;
+
+        if (targetRect.top >= 0 && targetRect.bottom > viewportHeight && targetRect.top >= viewportHeight) {
+            // pre
+            targetVisibleTop = null;
+            targetVisibleBottom = null;
+            isInView = false;
+        } else if (targetRect.top >= 0 && targetRect.bottom > viewportHeight && targetRect.top < viewportHeight) {
+            // top
+            targetVisibleTop = 0;
+            targetVisibleBottom = viewportHeight - targetRect.top;
+            isInView = true;
+        } else if (targetRect.top < 0 && targetRect.bottom > viewportHeight) {
+            // middle
+            targetVisibleTop = targetRect.top * -1;
+            targetVisibleBottom = targetVisibleTop + viewportHeight;
+            isInView = true;
+        } else if (targetRect.top >= 0 && targetRect.bottom <= viewportHeight) {
+            // all in
+            targetVisibleTop = 0;
+            targetVisibleBottom = targetHeight;
+            isInView = true;
+        } else if (targetRect.top < 0 && targetRect.bottom >= 0 && targetRect.bottom <= viewportHeight) {
+            // bottom
+            targetVisibleTop = targetHeight + targetRect.top;
+            targetVisibleBottom = targetHeight;
+            isInView = true;
+        } else if (targetRect.top < 0 && targetRect.bottom < 0) {
+            // post
+            targetVisibleTop = null;
+            targetVisibleBottom = null;
+            isInView = false;
+        } else {
+            isInView = false;
+        }
         return {
-            'dHeight': documentHeight,
-            'dIsVisible': documentIsVisible,
-            'dVisibleTop': documentVisibleTop,
-            'dVisibleBottom': documentVisibleBottom,
-            'dScrollUntil': documentScrollUntil,
-            'dScrollRate': documentScrollRate
+            dHeight: documentHeight,
+            dIsVisible: documentIsVisible,
+            dVisibleTop: documentVisibleTop,
+            dVisibleBottom: documentVisibleBottom,
+            dScrollUntil: documentScrollUntil,
+            dScrollRate: documentScrollRate,
+            tHeight: targetHeight,
+            tVisibleTop: targetVisibleTop,
+            tVisibleBottom: targetVisibleBottom,
+            tMarginTop: targetMarginTop,
+            tMarginBottom: targetMarginBottom,
+            tScrollUntil: targetVisibleBottom,
+            tScrollRate: (targetVisibleBottom / targetHeight),
+            tViewableRate: ((targetVisibleBottom - targetVisibleTop) / targetHeight),
+            tIsInView: isInView,
+            tLength: textLength
         };
     }
 
@@ -134,9 +190,9 @@ export default class {
         }
         if (element && p.length > 0) {
             return {
-                'element': element,
-                'category': category,
-                'path': p.join('>')
+                element: element,
+                category: category,
+                path: p.join('>')
             };
         } else {
             return false;

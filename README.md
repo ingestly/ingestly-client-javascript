@@ -50,6 +50,7 @@ npm run build
     - `eventName` : the SDK dispatches a recurring event based on a timing of requestAnimationFrame. You can specify a name of this event.
     - `eventFrequency` : the recurring event is throttled by this interval in millisecond. Set a small number if you want to make the SDK sensitive.
     - `prefix` : used for defining a key name of localStorage and Cookie.
+    - `targetWindow` : a property name of target window. you can use `self`, `parent` or `top`. 
 3. Save the file.
 
 #### Place .js files
@@ -66,18 +67,11 @@ npm run build
 
 You can enable optional tracking features.
 
-### Scroll Depth
+### Time-spent on a page (unload)
 
-- Scroll depth tracking for both fixed page and infinity scroll (lazy-load) page.
-- In `config()`, set `true` for `options.scroll.enable` and adjust values:
-
-|variable|example|description|
-|:---|:---|:---|
-|enable|`true`|track scroll depth or not|
-|threshold|`2`|track the depth when the user stay at/over X percent/pixels for more than T seconds specified here|
-|granularity|`20`|track the depth every X percent/pixels increased|
-|unit|`percent`|for the fixed height page, you can use `percent`. If the page is infinity scroll, use `pixels` instead|
-
+- Unload tracking set an eventListener to one of available events when the page is being unloaded.
+- You can get an exact time that user spent during the specific pageview.
+- In `config()`, set `true` for `options.unload.enable`.
 
 ### Clicks with data-trackable
 
@@ -86,11 +80,43 @@ You can enable optional tracking features.
 
 |variable|example|description|
 |:---|:---|:---|
-|enable|`true`|track click events or not|
 |targetAttr|`data-trackable`|attribution name for identifying the target element|
 
 - If you set `data-trackable` for `targetAttr`, you need to add `data-trackable` attribution to every element you want to track clicks.
 - Ideally, every block elements should be structured like hierarchy. and each block element should have `data-trackable` with meaningful value.
+
+
+### Scroll Depth
+
+- Scroll depth tracking for both fixed page and infinity scroll (lazy-load) page.
+- In `config()`, set `true` for `options.scroll.enable` and adjust values:
+
+|variable|example|description|
+|:---|:---|:---|
+|threshold|`2`|track the depth when the user stay at/over X percent/pixels for more than T seconds specified here|
+|granularity|`20`|track the depth every X percent/pixels increased|
+|unit|`percent`|for the fixed height page, you can use `percent`. If the page is infinity scroll, use `pixels` instead|
+
+### Read-Through Rate
+
+- Read-Through Rate means is a metrics that describes how much range of content is consumed by an user.
+- In `config()`, set `true` for `options.read.enable` and adjust values:
+
+|variable|example|description|
+|:---|:---|:---|
+|threshold|`4`|track the depth of content when the user stay at/over X percent|
+|granularity|`10`|track the rate every X percent increased|
+|target|`percent`|specify a target element which is a block element containing content body|
+
+### Media Tracking
+
+- Once you enabled this option, all media which is VIDEO or AUDIO will be tracked automatically.
+- This option supports `play`, `pause` and `eneded` events plus the heart-beat.
+- In `config()`, set `true` for `options.media.enable` and adjust values:
+
+|variable|example|description|
+|:---|:---|:---|
+|heartbeat|`5`|the heart-beat tracker will be dispatched every X sec defined here|
 
 
 ## API instructions

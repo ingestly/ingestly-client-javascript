@@ -5,7 +5,7 @@ import Utils from './utils';
 
 const
     sdkName = 'JS',
-    sdkVersion = '0.3.0',
+    sdkVersion = '0.4.0',
     initTimestamp = new Date();
 
 let config, targetWindow, idm, emitter, events, utils, parsedUrl, parsedReferrer,
@@ -64,103 +64,37 @@ export default class Ingestly {
             if (window[targetWindow].document.readyState === "interactive" || window[targetWindow].document.readyState === "complete") {
                 this.trackAction('rum', 'page', {});
             } else {
-                events.removeListener(eventHandlerKeys['performance']);
-                eventHandlerKeys['performance'] = events.addListener(window[targetWindow].document, 'DOMContentLoaded', () => {
-                    this.trackAction('rum', 'page', {});
-                }, false);
+                this.trackPerformance(targetWindow);
             }
         }
 
         if (config.options && config.options.unload && config.options.unload.enable) {
-            let unloadEvent;
-            if ('onbeforeunload' in window[targetWindow]) {
-                unloadEvent = 'beforeunload';
-            } else if ('onpagehide' in window[targetWindow]) {
-                unloadEvent = 'pagehide';
-            } else {
-                unloadEvent = 'unload';
-            }
-            events.removeListener(eventHandlerKeys['unload']);
-            eventHandlerKeys['unload'] = events.addListener(window[targetWindow], unloadEvent, () => {
-                this.trackAction('unload', 'page', {});
-            }, false);
+            this.trackUnload(targetWindow);
         }
 
         if (config.options && config.options.scroll && config.options.scroll.enable) {
-            const each = config.options.scroll.granularity || 20;
-            const steps = 100 / each;
-            const limit = config.options.scroll.threshold * 1000 || 2 * 1000;
-            let result = {}, currentVal = 0, prevVal = 0, scrollUnit = 'percent';
-            events.removeListener(eventHandlerKeys['scroll']);
-            eventHandlerKeys['scroll'] = events.addListener(window[targetWindow], config.eventName, () => {
-                result = utils.getScrollDepth();
-                if (result.dIsVisible !== 'hidden' && result.dIsVisible !== 'prerender') {
-                    if (config.options.scroll.unit === 'percent') {
-                        currentVal = Math.round(result.dScrollRate * steps) * each;
-                    } else {
-                        currentVal = Math.round(result.dScrollUntil * 100) / 100;
-                        scrollUnit = 'pixel';
-                    }
-                    if ((scrollUnit === 'percent' && currentVal > prevVal && currentVal >= 0)
-                        || (scrollUnit === 'pixel' && currentVal > prevVal && currentVal >= each)) {
-                        setTimeout(() => {
-                            if (currentVal > prevVal) {
-                                this.trackAction('scroll', 'page', {
-                                    'pgH': result.dHeight,
-                                    'srDepth': currentVal,
-                                    'srUnit': scrollUnit
-                                });
-                                prevVal = (scrollUnit === 'percent') ? currentVal : currentVal + each;
-                            }
-                        }, limit);
-                    }
-                }
-            }, false);
+            this.trackScroll(
+                config.options.scroll.granularity,
+                config.options.scroll.threshold,
+                config.options.scroll.unit,
+                config.eventName);
+        }
+
+        if (config.options && config.options.read && config.options.read.enable) {
+            this.trackRead(
+                config.options.read.granularity,
+                config.options.read.threshold,
+                config.options.read.target,
+                config.eventName);
         }
 
         if (config.options && config.options.clicks && config.options.clicks.enable) {
-            events.removeListener(eventHandlerKeys['click']);
-            eventHandlerKeys['click'] = events.addListener(window[targetWindow].document.body, 'click', (clickEevent) => {
-                const targetAttribute = config.options.clicks.targetAttr || 'data-trackable';
-                const trackableElement = utils.queryMatch('a, button, input, [role="button"]', clickEevent.target, targetAttribute);
-                let element = null;
-                if (trackableElement) {
-                    element = trackableElement.element;
-                    this.trackAction('click', trackableElement.category, {
-                        clTag: element.tagName,
-                        clId: element.id || undefined,
-                        clClass: element.className || undefined,
-                        clPath: trackableElement.path || undefined,
-                        clLink: element.href || undefined,
-                        clAttr: element.dataset || undefined
-                    });
-                }
-            }, false);
+            this.trackClicks(config.options.clicks.targetAttr);
         }
 
-        if (config.options && config.options.media && config.options.media.enable) {
-            const heartbeat = config.options.media.heartbeat || 5;
-            const targetEvents = ['play', 'pause', 'ended'];
-            let flags = {};
-            for (let i = 0; i < targetEvents.length; i++) {
-                events.removeListener(eventHandlerKeys['media'][targetEvents[i]]);
-                eventHandlerKeys['media'][targetEvents[i]] = events.addListener(window[targetWindow].document.body, targetEvents[i], (event) => {
-                    this.trackAction(event.type, event.target.tagName.toLowerCase(), utils.getMediaInfo(event.target));
-                }, {capture: true});
-            }
 
-            events.removeListener(eventHandlerKeys['media']['timeupdate']);
-            eventHandlerKeys['media']['timeupdate'] = events.addListener(window[targetWindow].document, 'timeupdate', (event) => {
-                if (flags[event.target.src]) {
-                    return false;
-                }
-                flags[event.target.src] = setTimeout(() => {
-                    if (event.target.paused !== true && event.target.ended !== true) {
-                        this.trackAction(event.type, event.target.tagName.toLowerCase(), utils.getMediaInfo(event.target));
-                    }
-                    flags[event.target.src] = false;
-                }, heartbeat * 1000);
-            }, {capture: true});
+        if (config.options && config.options.media && config.options.media.enable) {
+            this.trackMedia( config.options.media.heartbeat);
         }
     }
 
@@ -178,7 +112,7 @@ export default class Ingestly {
             {
                 action: action,
                 category: category,
-                client: utils.getClientInfo(),
+                client: utils.getClientInfo(targetWindow),
                 pt: utils.getPerformanceInfo(),
                 sinceInitMs: now.getTime() - initTimestamp.getTime(),
                 sincePrevMs: now.getTime() - prevTimestamp.getTime()
@@ -204,6 +138,153 @@ export default class Ingestly {
     trackPage(eventContext = {}) {
         this.trackAction('view', 'page', eventContext);
     }
+
+    /**
+     * Add a tracker to the onload event.
+     */
+    trackPerformance() {
+        events.removeListener(eventHandlerKeys['performance']);
+        eventHandlerKeys['performance'] = events.addListener(window[targetWindow].document, 'DOMContentLoaded', () => {
+            this.trackAction('rum', 'page', {});
+        }, false);
+    }
+
+    /**
+     * Add a tracker to the unload event.
+     */
+    trackUnload() {
+        let unloadEvent;
+        if ('onbeforeunload' in window[targetWindow]) {
+            unloadEvent = 'beforeunload';
+        } else if ('onpagehide' in window[targetWindow]) {
+            unloadEvent = 'pagehide';
+        } else {
+            unloadEvent = 'unload';
+        }
+        events.removeListener(eventHandlerKeys['unload']);
+        eventHandlerKeys['unload'] = events.addListener(window[targetWindow], unloadEvent, () => {
+            this.trackAction('unload', 'page', {});
+        }, false);
+    }
+
+    /**
+     * Add a tracker to the click event.
+     * @param  {String} targetAttr An attribution name (key) to identify trackable elements
+     */
+    trackClicks(targetAttr) {
+        events.removeListener(eventHandlerKeys['click']);
+        eventHandlerKeys['click'] = events.addListener(window[targetWindow].document.body, 'click', (clickEvent) => {
+            const targetAttribute = targetAttr || 'data-trackable';
+            const trackableElement = utils.queryMatch('a, button, input, [role="button"]', clickEvent.target, targetAttribute);
+            let element = null;
+            if (trackableElement) {
+                element = trackableElement.element;
+                this.trackAction('click', trackableElement.category, {
+                    clTag: element.tagName,
+                    clId: element.id || undefined,
+                    clClass: element.className || undefined,
+                    clPath: trackableElement.path || undefined,
+                    clLink: element.href || undefined,
+                    clAttr: element.dataset || undefined
+                });
+            }
+        }, false);
+    }
+
+    /**
+     * Start scroll observation by using custom event
+     * @param  {Integer} granularity track the depth every X percent/pixels increased
+     * @param  {Integer} threshold track the depth when the user stay at/over X percent/pixels for more than T seconds specified here
+     * @param  {String} unit percent or pixel
+     * @param  {String} eventName a target custom event to listen for dispatching observation
+     */
+    trackScroll(granularity, threshold, unit, eventName) {
+        const each = granularity || 20;
+        const steps = 100 / each;
+        const limit = threshold * 1000 || 2 * 1000;
+        let result = {}, currentVal = 0, prevVal = 0, scrollUnit = 'percent';
+        events.removeListener(eventHandlerKeys['scroll']);
+        eventHandlerKeys['scroll'] = events.addListener(window[targetWindow], eventName, () => {
+            result = utils.getVisibility(null, targetWindow);
+            if (result.dIsVisible !== 'hidden' && result.dIsVisible !== 'prerender') {
+                if (unit === 'percent') {
+                    currentVal = Math.floor(result.dScrollRate * steps) * each;
+                } else {
+                    currentVal = result.dScrollUntil;
+                    scrollUnit = 'pixel';
+                }
+
+                if ((scrollUnit === 'percent' && currentVal > prevVal && currentVal >= 0 && currentVal <= 100)
+                    || (scrollUnit === 'pixel' && currentVal > prevVal && currentVal >= each)) {
+                    setTimeout(() => {
+                        if (currentVal > prevVal) {
+                            this.trackAction('scroll', 'page', {
+                                pgH: result.dHeight,
+                                srDepth: currentVal,
+                                srUnit: scrollUnit
+                            });
+                            prevVal = (scrollUnit === 'percent') ? currentVal : currentVal + each;
+                        }
+                    }, limit);
+                }
+            }
+        }, false);
+    }
+
+
+    trackRead(granularity, threshold, target, eventName) {
+        if (!target) {
+            return;
+        }
+        const each = granularity || 20;
+        const steps = 100 / each;
+        const limit = threshold * 1000 || 2 * 1000;
+        let result = {}, currentVal = 0, prevVal = 0;
+        events.removeListener(eventHandlerKeys['read']);
+        eventHandlerKeys['read'] = events.addListener(window[targetWindow], eventName, () => {
+            result = utils.getVisibility(target, targetWindow);
+            if (result.dIsVisible !== 'hidden' && result.dIsVisible !== 'prerender' && result.tIsInView) {
+                currentVal = Math.floor(result.tScrollRate * steps) * each;
+                if (currentVal > prevVal && currentVal >= 0 && currentVal <= 100) {
+                    setTimeout(() => {
+                        if (currentVal > prevVal) {
+                            this.trackAction('read', 'content', {
+                                tgH: result.tHeight,
+                                txL: result.tLength,
+                                rdRate: currentVal,
+                            });
+                            prevVal = currentVal;
+                        }
+                    }, limit);
+                }
+            }
+        }, false);
+    }
+
+    trackMedia(heartbeat = 5){
+        const targetEvents = ['play', 'pause', 'ended'];
+        let flags = {};
+        for (let i = 0; i < targetEvents.length; i++) {
+            events.removeListener(eventHandlerKeys['media'][targetEvents[i]]);
+            eventHandlerKeys['media'][targetEvents[i]] = events.addListener(window[targetWindow].document.body, targetEvents[i], (event) => {
+                this.trackAction(event.type, event.target.tagName.toLowerCase(), utils.getMediaInfo(event.target));
+            }, {capture: true});
+        }
+
+        events.removeListener(eventHandlerKeys['media']['timeupdate']);
+        eventHandlerKeys['media']['timeupdate'] = events.addListener(window[targetWindow].document, 'timeupdate', (event) => {
+            if (flags[event.target.src]) {
+                return false;
+            }
+            flags[event.target.src] = setTimeout(() => {
+                if (event.target.paused !== true && event.target.ended !== true) {
+                    this.trackAction(event.type, event.target.tagName.toLowerCase(), utils.getMediaInfo(event.target));
+                }
+                flags[event.target.src] = false;
+            }, heartbeat * 1000);
+        }, {capture: true});
+    }
+
 
     /**
      * Get a value for specified key name in GET parameter.
