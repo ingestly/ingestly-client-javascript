@@ -36,6 +36,9 @@ const generateParamPair = (key, val) => {
 
 let config, status = true;
 
+/**
+ * @ignore
+ */
 export default class {
     constructor(obj) {
         config = obj;
@@ -139,7 +142,7 @@ export default class {
     getDeviceId(callback) {
         let url = generateDestination('ingestly-sync');
         url += `&ingestlyId=${config.deviceId}`;
-        if ('fetch' in window[config.target] && typeof window[config.target].fetch === 'function') {
+        if ('fetch' in window[config.target] && typeof window[config.target].fetch === 'function' && 'AbortController' in window[config.target] && typeof window[config.target].AbortController === 'function') {
             const controller = new AbortController();
             const signal = controller.signal;
             const option = {signal, method: 'GET', cache: 'no-store', keepalive: true};
