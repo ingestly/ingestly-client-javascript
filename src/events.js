@@ -1,5 +1,8 @@
 let managedEvents = {}, handlerKey = 0;
 
+/**
+ * @ignore
+ */
 export default class {
     constructor(config) {
         let event, timer;

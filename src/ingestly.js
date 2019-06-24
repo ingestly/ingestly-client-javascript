@@ -11,7 +11,9 @@ const
 let config, targetWindow, idm, emitter, events, utils, parsedUrl, parsedReferrer,
     eventHandlerKeys = {media: []},
     prevTimestamp = new Date();
-
+/**
+ * @ignore
+ */
 export default class Ingestly {
 
     constructor() {

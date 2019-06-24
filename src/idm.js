@@ -31,6 +31,9 @@ const initDeviceId = () => {
 
 let storageKey, initialId, isNewId = false;
 
+/**
+ * @ignore
+ */
 export default class {
     constructor(config) {
         initialId = generateId();

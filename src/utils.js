@@ -1,3 +1,6 @@
+/**
+ * @ignore
+ */
 export default class {
     getPerformanceInfo() {
         let timing = window.performance.timing,
