@@ -119,7 +119,7 @@ export default class {
 
         if ('sendBeacon' in navigator && typeof navigator.sendBeacon === 'function' && status === true) {
             try {
-                navigator.sendBeacon(url);
+                status = navigator.sendBeacon(url);
             } catch (error) {
                 status = false;
             }
