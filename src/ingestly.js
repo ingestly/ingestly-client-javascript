@@ -5,7 +5,7 @@ import Utils from './utils';
 
 const
     sdkName = 'JS',
-    sdkVersion = '0.4.0',
+    sdkVersion = '0.4.1',
     initTimestamp = new Date();
 
 let config, targetWindow, idm, emitter, events, utils, parsedUrl, parsedReferrer,

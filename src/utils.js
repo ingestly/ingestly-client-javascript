@@ -15,8 +15,11 @@ export default class {
     }
 
     getClientInfo(targetWindow) {
-        const orientation = screen.orientation || screen.mozOrientation || screen.msOrientation;
         const ua = navigator.userAgent;
+        let orientation = screen.orientation || screen.mozOrientation || screen.msOrientation || 'not-supported';
+        if(typeof orientation === 'object'){
+            orientation = orientation.type;
+        }
         let deviceType, deviceOs;
         if (ua.match(/iPhone|iPod/g)) {
             deviceOs = 'iOS';
