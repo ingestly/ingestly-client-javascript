@@ -106,7 +106,7 @@ You can enable optional tracking features.
 |:---|:---|:---|
 |threshold|`4`|track the depth of content when the user stay at/over X percent|
 |granularity|`10`|track the rate every X percent increased|
-|target|`percent`|specify a target element which is a block element containing content body|
+|targets|`document.getElementsByTagName('article')`|An array of elements. (nodeList or array) specify block elements to observed as a target of read-through. |
 
 ### Media Tracking
 

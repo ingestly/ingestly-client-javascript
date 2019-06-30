@@ -28,7 +28,7 @@
                     enable: true,
                     threshold: 2,
                     granularity: 20,
-                    target: window.document.getElementById('article')
+                    targets: [].slice.call(window.document.getElementsByTagName('article'))
                 },
                 media: {
                     enable: true,
@@ -38,22 +38,22 @@
         });
 
         Ingestly.init({
-            userId: '',
-            userStatus: '',
-            userAttr: {},
-            pageTitle: window.parent.document.title,
-            pageAttr: {},
-            contentId: '',
-            contentHeadline: '',
-            contentStatus: '',
-            contentAttr: {},
-            campaignCode: Ingestly.getQueryVal('cid'),
-            campaignName: Ingestly.getQueryVal('utm_campaign'),
-            campaignSource: Ingestly.getQueryVal('utm_source'),
-            campaignMedium: Ingestly.getQueryVal('utm_medium'),
-            campaignTerm: Ingestly.getQueryVal('utm_term'),
-            campaignContent: Ingestly.getQueryVal('utm_content'),
-            customAttr: {}
+            usId: '',
+            usStatus: '',
+            usAttr: {},
+            pgTitle: window.parent.document.title,
+            pgAttr: {},
+            cnId: '',
+            cnHeadline: '',
+            cnStatus: '',
+            cnAttr: {},
+            cpCode: Ingestly.getQueryVal('cid'),
+            cpName: Ingestly.getQueryVal('utm_campaign'),
+            cpSource: Ingestly.getQueryVal('utm_source'),
+            cpMedium: Ingestly.getQueryVal('utm_medium'),
+            cpTerm: Ingestly.getQueryVal('utm_term'),
+            cpContent: Ingestly.getQueryVal('utm_content'),
+            cpAttr: {}
         });
 
         Ingestly.trackPage();

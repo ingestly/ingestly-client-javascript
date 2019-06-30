@@ -5,12 +5,13 @@ import Utils from './utils';
 
 const
     sdkName = 'JS',
-    sdkVersion = '0.4.1',
+    sdkVersion = '0.5.0',
     initTimestamp = new Date();
 
 let config, targetWindow, idm, emitter, events, utils, parsedUrl, parsedReferrer,
     eventHandlerKeys = {media: []},
     prevTimestamp = new Date();
+
 /**
  * @ignore
  */
@@ -18,6 +19,7 @@ export default class Ingestly {
 
     constructor() {
         this.dataModel = {};
+        this.trackReadTargets = [];
     }
 
     /**
@@ -52,8 +54,13 @@ export default class Ingestly {
     init(dataModel) {
 
         this.dataModel = dataModel;
-        this.dataModel['pur'] = parsedUrl;
-        this.dataModel['prf'] = parsedReferrer;
+
+        for(let key in parsedUrl){
+            this.dataModel[`ur${key}`] = parsedUrl[key];
+        }
+        for(let key in parsedReferrer){
+            this.dataModel[`rf${key}`] = parsedReferrer[key];
+        }
 
         if (config.eventName && config.eventFrequency && typeof events === 'undefined') {
             events = new Events({
@@ -75,28 +82,20 @@ export default class Ingestly {
         }
 
         if (config.options && config.options.scroll && config.options.scroll.enable) {
-            this.trackScroll(
-                config.options.scroll.granularity,
-                config.options.scroll.threshold,
-                config.options.scroll.unit,
-                config.eventName);
+            this.trackScroll();
         }
 
         if (config.options && config.options.read && config.options.read.enable) {
-            this.trackRead(
-                config.options.read.granularity,
-                config.options.read.threshold,
-                config.options.read.target,
-                config.eventName);
+            this.trackReadTargets = [].slice.call(config.options.read.targets);
+            this.trackRead();
         }
 
         if (config.options && config.options.clicks && config.options.clicks.enable) {
-            this.trackClicks(config.options.clicks.targetAttr);
+            this.trackClicks();
         }
 
-
         if (config.options && config.options.media && config.options.media.enable) {
-            this.trackMedia( config.options.media.heartbeat);
+            this.trackMedia();
         }
     }
 
@@ -108,20 +107,21 @@ export default class Ingestly {
      */
     trackAction(action = 'unknown', category = 'unknown', eventContext = {}) {
         const now = new Date();
-        const record = utils.mergeObj([
+        const mandatory = {
+            action: action,
+            category: category,
+            sinceInitMs: now.getTime() - initTimestamp.getTime(),
+            sincePrevMs: now.getTime() - prevTimestamp.getTime()
+        };
+        const payload = utils.mergeObj([
             this.dataModel,
+            mandatory,
             eventContext,
-            {
-                action: action,
-                category: category,
-                client: utils.getClientInfo(targetWindow),
-                pt: utils.getPerformanceInfo(),
-                sinceInitMs: now.getTime() - initTimestamp.getTime(),
-                sincePrevMs: now.getTime() - prevTimestamp.getTime()
-            }
+            utils.getPerformanceInfo(),
+            utils.getClientInfo(targetWindow)
         ]);
         prevTimestamp = now;
-        emitter.emit(record);
+        emitter.emit(payload);
 
         if (idm.isNewId) {
             emitter.getDeviceId((result) => {
@@ -171,12 +171,11 @@ export default class Ingestly {
 
     /**
      * Add a tracker to the click event.
-     * @param  {String} targetAttr An attribution name (key) to identify trackable elements
      */
-    trackClicks(targetAttr) {
+    trackClicks() {
         events.removeListener(eventHandlerKeys['click']);
         eventHandlerKeys['click'] = events.addListener(window[targetWindow].document.body, 'click', (clickEvent) => {
-            const targetAttribute = targetAttr || 'data-trackable';
+            const targetAttribute = config.options.clicks.targetAttr || 'data-trackable';
             const trackableElement = utils.queryMatch('a, button, input, [role="button"]', clickEvent.target, targetAttribute);
             let element = null;
             if (trackableElement) {
@@ -187,6 +186,7 @@ export default class Ingestly {
                     clClass: element.className || undefined,
                     clPath: trackableElement.path || undefined,
                     clLink: element.href || undefined,
+                    clText: element.innerText || element.value || undefined,
                     clAttr: element.dataset || undefined
                 });
             }
@@ -195,21 +195,17 @@ export default class Ingestly {
 
     /**
      * Start scroll observation by using custom event
-     * @param  {Integer} granularity track the depth every X percent/pixels increased
-     * @param  {Integer} threshold track the depth when the user stay at/over X percent/pixels for more than T seconds specified here
-     * @param  {String} unit percent or pixel
-     * @param  {String} eventName a target custom event to listen for dispatching observation
      */
-    trackScroll(granularity, threshold, unit, eventName) {
-        const each = granularity || 20;
+    trackScroll() {
+        const each = config.options.scroll.granularity || 20;
         const steps = 100 / each;
-        const limit = threshold * 1000 || 2 * 1000;
+        const limit = config.options.scroll.threshold * 1000 || 2 * 1000;
         let result = {}, currentVal = 0, prevVal = 0, scrollUnit = 'percent';
         events.removeListener(eventHandlerKeys['scroll']);
-        eventHandlerKeys['scroll'] = events.addListener(window[targetWindow], eventName, () => {
+        eventHandlerKeys['scroll'] = events.addListener(window[targetWindow], config.eventName, () => {
             result = utils.getVisibility(null, targetWindow);
             if (result.dIsVisible !== 'hidden' && result.dIsVisible !== 'prerender') {
-                if (unit === 'percent') {
+                if (config.options.scroll.unit === 'percent') {
                     currentVal = Math.floor(result.dScrollRate * steps) * each;
                 } else {
                     currentVal = result.dScrollUntil;
@@ -233,38 +229,56 @@ export default class Ingestly {
         }, false);
     }
 
-
-    trackRead(granularity, threshold, target, eventName) {
-        if (!target) {
+    /**
+     * Start Read-Through Rate observation by using custom event
+     */
+    trackRead() {
+        if (!this.trackReadTargets || this.trackReadTargets.length === 0) {
             return;
         }
-        const each = granularity || 20;
+        const each = config.options.read.granularity || 20;
         const steps = 100 / each;
-        const limit = threshold * 1000 || 2 * 1000;
-        let result = {}, currentVal = 0, prevVal = 0;
+        const limit = config.options.read.threshold * 1000 || 2 * 1000;
+        let results = [], currentVals = [], prevVals = [];
         events.removeListener(eventHandlerKeys['read']);
-        eventHandlerKeys['read'] = events.addListener(window[targetWindow], eventName, () => {
-            result = utils.getVisibility(target, targetWindow);
-            if (result.dIsVisible !== 'hidden' && result.dIsVisible !== 'prerender' && result.tIsInView) {
-                currentVal = Math.floor(result.tScrollRate * steps) * each;
-                if (currentVal > prevVal && currentVal >= 0 && currentVal <= 100) {
-                    setTimeout(() => {
-                        if (currentVal > prevVal) {
-                            this.trackAction('read', 'content', {
-                                tgH: result.tHeight,
-                                txL: result.tLength,
-                                rdRate: currentVal,
-                            });
-                            prevVal = currentVal;
-                        }
-                    }, limit);
+        eventHandlerKeys['read'] = events.addListener(window[targetWindow], config.eventName, () => {
+            for (let i = 0; i < this.trackReadTargets.length; i++) {
+                currentVals[i] = currentVals[i] || 0;
+                prevVals[i] = prevVals[i] || 0;
+                results[i] = utils.getVisibility(this.trackReadTargets[i], targetWindow);
+                if (results[i].dIsVisible !== 'hidden' && results[i].dIsVisible !== 'prerender' && results[i].tIsInView) {
+                    currentVals[i] = Math.floor(results[i].tScrollRate * steps) * each;
+                    if (currentVals[i] > prevVals[i] && currentVals[i] >= 0 && currentVals[i] <= 100) {
+                        setTimeout(() => {
+                            if (currentVals[i] > prevVals[i] && this.trackReadTargets[i]) {
+                                this.trackAction('read', 'content', {
+                                    rdIdx: i,
+                                    rdId: this.trackReadTargets[i].id || undefined,
+                                    rdTxS: this.trackReadTargets[i].innerText.substring(0, 12) || undefined,
+                                    rdTgH: results[i].tHeight,
+                                    rdTxL: results[i].tLength,
+                                    rdRate: currentVals[i],
+                                    rdAttr: this.trackReadTargets[i].dataset || undefined
+                                });
+                                if (currentVals[i] === 100) {
+                                    this.trackReadTargets.splice(i, 1);
+                                }
+                                prevVals[i] = currentVals[i];
+                            }
+                        }, limit);
+                    }
                 }
+
             }
         }, false);
     }
 
-    trackMedia(heartbeat = 5){
+    /**
+     * Set eventListeners for Media Tracking
+     */
+    trackMedia() {
         const targetEvents = ['play', 'pause', 'ended'];
+        const heartbeat = config.options.media.heartbeat || 5;
         let flags = {};
         for (let i = 0; i < targetEvents.length; i++) {
             events.removeListener(eventHandlerKeys['media'][targetEvents[i]]);
@@ -294,6 +308,6 @@ export default class Ingestly {
      * @return {String} A value for the specified key.
      */
     getQueryVal(key) {
-        return parsedUrl.query[key] ? parsedUrl.query[key] : '';
+        return parsedUrl.Query[key] ? parsedUrl.Query[key] : '';
     }
 }

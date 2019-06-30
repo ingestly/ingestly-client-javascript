@@ -8,9 +8,9 @@ export default class {
             dcl = timing.domContentLoadedEventStart - timing.domLoading,
             complete = timing.domComplete - timing.domLoading;
         return {
-            interactive: interactive >= 0 ? interactive : undefined,
-            dcl: dcl >= 0 ? dcl : undefined,
-            complete: complete >= 0 ? complete : undefined
+            ptInteractive: interactive >= 0 ? interactive : undefined,
+            ptDcl: dcl >= 0 ? dcl : undefined,
+            ptComplete: complete >= 0 ? complete : undefined
         };
     }
 
@@ -60,10 +60,10 @@ export default class {
         }
 
         return {
-            vpH: window[targetWindow].innerHeight,
-            vpW: window[targetWindow].innerWidth,
-            scH: window[targetWindow].screen.height,
-            scW: window[targetWindow].screen.width,
+            vpHeight: window[targetWindow].innerHeight,
+            vpWidth: window[targetWindow].innerWidth,
+            scHeight: window[targetWindow].screen.height,
+            scWidth: window[targetWindow].screen.width,
             scOrientation: orientation,
             dvType: deviceType,
             dvOs: deviceOs,
@@ -231,13 +231,13 @@ export default class {
                 return obj;
             }, {});
             result = {
-                protocol: parser.protocol,
-                hostname: parser.hostname,
-                port: parser.port,
-                pathname: parser.pathname,
-                search: parser.search,
-                hash: parser.hash,
-                query: query
+                Protocol: parser.protocol,
+                Host: parser.hostname,
+                Port: parser.port,
+                Path: parser.pathname,
+                Search: parser.search,
+                Hash: parser.hash,
+                Query: query
             }
         }
         return result;

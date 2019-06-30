@@ -108,7 +108,7 @@ npm run build
 |:---|:---|:---|
 |threshold|`4`|ユーザーが読了率X以上を、何秒以上維持したら計測するかの閾値です|
 |granularity|`10`|ここで指定した割合で読了率が変化する度に計測されます|
-|target|`percent`|コンテンツ本体を含むブロック要素のエレメントを1つ指定します|
+|targets|`document.getElementsByTagName('article')`|nodeListまたは配列。読了計測の対象となるブロック要素を指定します|
 
 ### メディア計測
 

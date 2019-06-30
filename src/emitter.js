@@ -27,6 +27,9 @@ const generateDestination = (feature) => {
 };
 
 const generateParamPair = (key, val) => {
+    if(typeof val === 'object'){
+        val = JSON.stringify(val);
+    }
     if (typeof val !== 'undefined' && val !== '' && val !== '{}') {
         return (`&${key}=${encodeURIComponent(val)}`);
     } else {
@@ -45,76 +48,12 @@ export default class {
     }
 
     emit(payload) {
-        let url = generateDestination('ingestly-ingest'),
-            obj = {
-                ingestlyId: config.deviceId,
-                rootId: config.rootId,
-                action: payload.action,
-                category: payload.category,
-                sinceInitMs: payload.sinceInitMs,
-                sincePrevMs: payload.sincePrevMs,
-                usId: payload.userId,
-                usStatus: payload.userStatus,
-                usAttr: JSON.stringify(payload.userAttr),
-                pgUrl: payload.pageUrl,
-                pgReferrer: payload.pageReferrer,
-                pgTitle: payload.pageTitle,
-                pgAttr: JSON.stringify(payload.pageAttr),
-                cnId: payload.contentId,
-                cnHeadline: payload.contentHeadline,
-                cnStatus: payload.contentStatus,
-                cnAttr: JSON.stringify(payload.contentAttr),
-                vpHeight: payload.client.vpH,
-                vpWidth: payload.client.vpW,
-                scHeight: payload.client.scH,
-                scWidth: payload.client.scW,
-                scOrientation: payload.client.scOrientation,
-                dvType: payload.client.dvType,
-                dvOs: payload.client.dvOs,
-                dvPlatform: payload.client.dvPlatform,
-                ptInteractive: payload.pt ? payload.pt.interactive : undefined,
-                ptDcl: payload.pt ? payload.pt.dcl : undefined,
-                ptComplete: payload.pt ? payload.pt.complete : undefined,
-                srDepth: payload.srDepth,
-                srUnit: payload.srUnit,
-                pgHeight: payload.pgH,
-                rdRate: payload.rdRate,
-                txLength: payload.txL,
-                ctHeight: payload.tgH,
-                clTag: payload.clTag,
-                clId: payload.clId,
-                clClass: payload.clClass,
-                clPath: payload.clPath,
-                clLink: payload.clLink,
-                clAttr: JSON.stringify(payload.clAttr),
-                mdSrc: payload.mdSrc,
-                mdCurrentTime: payload.mdCurrentTime,
-                mdDuration: payload.mdDuration,
-                mdPlayedPercent: payload.mdPlayedPercent,
-                mdAttr: JSON.stringify(payload.mdAttr),
-                cpCode: payload.campaignCode,
-                cpName: payload.campaignName,
-                cpSource: payload.campaignSource,
-                cpMedium: payload.campaignMedium,
-                cpTerm: payload.campaignTerm,
-                cpContent: payload.campaignContent,
-                urProtocol: payload.pur.protocol,
-                urHost: payload.pur.hostname,
-                urPath: payload.pur.pathname,
-                urSearch: payload.pur.search,
-                urHash: payload.pur.hash,
-                urQuery: JSON.stringify(payload.pur.query),
-                rfProtocol: payload.prf.protocol,
-                rfHost: payload.prf.hostname,
-                rfPath: payload.prf.pathname,
-                rfSearch: payload.prf.search,
-                rfHash: payload.prf.hash,
-                rfQuery: JSON.stringify(payload.prf.query),
-                customAttr: JSON.stringify(payload.customAttr)
-            };
+        let url = generateDestination('ingestly-ingest');
+        url += `&ingestlyId=${config.deviceId}`;
+        url += `&rootId=${config.rootId}`;
 
-        for (let key in obj) {
-            url += generateParamPair(key, obj[key]);
+        for (let key in payload) {
+            url += generateParamPair(key, payload[key]);
         }
 
         if ('sendBeacon' in navigator && typeof navigator.sendBeacon === 'function' && status === true) {
