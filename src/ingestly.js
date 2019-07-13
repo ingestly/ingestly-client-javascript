@@ -5,7 +5,7 @@ import Utils from './utils';
 
 const
     sdkName = 'JS',
-    sdkVersion = '0.5.0',
+    sdkVersion = '0.6.0',
     initTimestamp = new Date();
 
 let config, targetWindow, idm, emitter, events, utils, parsedUrl, parsedReferrer,
@@ -69,7 +69,7 @@ export default class Ingestly {
             });
         }
 
-        if ('performance' in window[targetWindow]) {
+        if (config.options && config.options.rum &&  config.options.rum.enable) {
             if (window[targetWindow].document.readyState === "interactive" || window[targetWindow].document.readyState === "complete") {
                 this.trackAction('rum', 'page', {});
             } else {
@@ -117,18 +117,18 @@ export default class Ingestly {
             this.dataModel,
             mandatory,
             eventContext,
-            utils.getPerformanceInfo(),
-            utils.getClientInfo(targetWindow)
+            utils.getClientInfo(targetWindow),
+            'performance' in window[targetWindow] ? utils.getPerformanceInfo() : {}
         ]);
         prevTimestamp = now;
-        emitter.emit(payload);
 
         if (idm.isNewId) {
-            emitter.getDeviceId((result) => {
+            emitter.sync(payload, (result) => {
                 idm.setDeviceId(result);
                 idm.isNewId = false;
             });
         } else {
+            emitter.emit(payload);
             idm.setDeviceId(idm.deviceId);
         }
     }

@@ -11,6 +11,9 @@
             prefix: 'ingestly',
             targetWindow: 'self',
             options: {
+                rum: {
+                    enable: true
+                },
                 unload: {
                     enable: true
                 },

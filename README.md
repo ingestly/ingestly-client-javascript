@@ -67,6 +67,11 @@ npm run build
 
 You can enable optional tracking features.
 
+### Real User Monitoring
+
+- You can measure the Real User Monitoring data which is the performance information based on timeline of page loading on each client.
+- In `config()`, set `true` for `options.rum.enable`.
+
 ### Time-spent on a page (unload)
 
 - Unload tracking set an eventListener to one of available events when the page is being unloaded.
@@ -122,14 +127,30 @@ You can enable optional tracking features.
 ## API instructions
 
 - Basically, SDK uses a global namespace `Ingestly`.
-- A custom event `ingestlyRecurringEvent` (or your specified name) can be used for observing elements repeatedly.
+- A custom event `ingestlyRecurringEvent` (or your specified name in `config()`) can be used for observing elements repeatedly.
 
 ### Ingestly.config(config)
 
+- A method for configuration. See Configuration and Options section in this page.
+
 ### Ingestly.init(dataModel)
+
+- Initialization for the page.
+- The method defines the page level variables such as page URL, title, referrer, etc...
+- If your web site is SPA, you should call this method on each page update.
+- A parameter `dataModel` must be an object. You can add custom variables if you define BigQuery's schema and Log Format for Fastly.
 
 ### Ingestly.trackPage(eventContext)
 
+- Send a beacon for pageview event.
+- You can pass the custom variables, or you can overwrite variables you passed at `Init()`.
+
 ### Ingestly.trackAction(action, category, eventContext)
 
+- Send a custom beacon on your preferred events.
+
 ### Ingestly.getQueryVal(keyName)
+
+- This method retrieves a value from GET parameter of URL by specifying a key name.
+- If the URL does not have a key-value pair for specified key name, the method returns an empty string `''`.
+- Note that this method does not parse the URL each time. An object containing the parsed key-value pairs based on URL is generated on `init()`, and the method just returns the value from the object. So, if your SPA updates URL parameter, and you want to use it for measurement, you need to call `init()` or do not use this method.

@@ -20,10 +20,20 @@ const xhr = (url, callback) => {
     return true;
 };
 
-const generateDestination = (feature) => {
+const generateDestination = (feature, payload, deviceId, rootId) => {
     const timestamp = (+new Date).toString(36),
         protocol = (document.location && document.location.protocol === 'https:') ? 'https:' : 'http:';
-    return `${protocol}//${config.endpoint}/${feature}/${timestamp}/?key=${config.apiKey}&sdk=${config.sdkName}-${config.sdkVersion}`;
+    let url = `${protocol}//${config.endpoint}/${feature}/${timestamp}/`;
+    url += `?key=${config.apiKey}`;
+    url += `&sdk=${config.sdkName}-${config.sdkVersion}`;
+    url += `&ingestlyId=${deviceId}`;
+    url += `&rootId=${rootId}`;
+
+    for (let key in payload) {
+        url += generateParamPair(key, payload[key]);
+    }
+
+    return url;
 };
 
 const generateParamPair = (key, val) => {
@@ -48,14 +58,7 @@ export default class {
     }
 
     emit(payload) {
-        let url = generateDestination('ingestly-ingest');
-        url += `&ingestlyId=${config.deviceId}`;
-        url += `&rootId=${config.rootId}`;
-
-        for (let key in payload) {
-            url += generateParamPair(key, payload[key]);
-        }
-
+        let url = generateDestination('ingestly-ingest', payload, config.deviceId, config.rootId);
         if ('sendBeacon' in navigator && typeof navigator.sendBeacon === 'function' && status === true) {
             try {
                 status = navigator.sendBeacon(url);
@@ -63,7 +66,7 @@ export default class {
                 status = false;
             }
             if (!status) {
-                if ('fetch' in window[config.target] && typeof window[config.target].fetch === 'function') {
+                if (typeof window[config.target].fetch === 'function' && typeof window[config.target].AbortController === 'function') {
                     const controller = new AbortController();
                     const signal = controller.signal;
                     const option = {signal, method: 'POST', cache: 'no-store', keepalive: true};
@@ -78,10 +81,9 @@ export default class {
         }
     }
 
-    getDeviceId(callback) {
-        let url = generateDestination('ingestly-sync');
-        url += `&ingestlyId=${config.deviceId}`;
-        if ('fetch' in window[config.target] && typeof window[config.target].fetch === 'function' && 'AbortController' in window[config.target] && typeof window[config.target].AbortController === 'function') {
+    sync(payload, callback) {
+        let url = generateDestination('ingestly-sync', payload, config.deviceId, config.rootId);
+        if (typeof window[config.target].fetch === 'function' && typeof window[config.target].AbortController === 'function') {
             const controller = new AbortController();
             const signal = controller.signal;
             const option = {signal, method: 'GET', cache: 'no-store', keepalive: true};
