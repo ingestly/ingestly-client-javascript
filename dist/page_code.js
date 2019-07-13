@@ -41,11 +41,13 @@
         });
 
         Ingestly.init({
+            pgUrl: window.location.href,
+            pgRef: document.referrer,
+            pgTitle: window.document.title,
+            pgAttr: {},
             usId: '',
             usStatus: '',
             usAttr: {},
-            pgTitle: window.parent.document.title,
-            pgAttr: {},
             cnId: '',
             cnHeadline: '',
             cnStatus: '',
