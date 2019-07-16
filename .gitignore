@@ -1,3 +1,5 @@
 
 test.html
 jsdoc/
+dist/
+node_modules
