@@ -1,3 +1,4 @@
-
 test.html
 jsdoc/
+node_modules/
+dist/
