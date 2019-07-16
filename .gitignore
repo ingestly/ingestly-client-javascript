@@ -1,3 +1,5 @@
 
+.DS_tore
 test.html
 jsdoc/
+node_modules/
