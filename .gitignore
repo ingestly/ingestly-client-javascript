@@ -1,6 +1,5 @@
 .DS_Store
 test.html
-
 node_modules/
-dist/
 jsdoc/
+dist/
