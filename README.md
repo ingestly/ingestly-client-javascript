@@ -22,7 +22,8 @@ Also, Ingestly can be implemented seamlessly into your existing web site with in
 
 ### Prerequisites
 - [Ingestly Endpoint](https://github.com/ingestly/ingestly-endpoint) must be in operation.
-- If you use the pre-build SDK, you can use files under `./dist` directory.
+- If you want to use the pre-build SDK, you can use files piblished in [GitHub Releases](https://github.com/ingestly/ingestly-client-javascript/releases).
+
 - If you wish to build the SDK by yourself, node.js is required.
 - The SDK uses a localStorage key and a Cookie for storing sub-domain specific ID.
 

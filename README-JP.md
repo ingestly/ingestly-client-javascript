@@ -23,7 +23,7 @@ Ingestlyは、Fastlyを活用してフロントエンドからGoogle BigQueryへ
 
 ### 前提条件
 - [Ingestly Endpoint](https://github.com/ingestly/ingestly-endpoint) が動いている必要があります
-- ビルド済みSDKを使う場合、 `./dist` ディレクトリ下のファイルを利用できます
+- ビルド済みSDKを使う場合、 [GitHub Releases](https://github.com/ingestly/ingestly-client-javascript/releases) ページで配布しているファイルを利用できます
 - SDKをビルドしたい場合、node.jsが必要です
 - SDKはサブドメインレベルの固有のIDを保存するため、 localStorage と Cookie で 1つずつキーを利用します
 
