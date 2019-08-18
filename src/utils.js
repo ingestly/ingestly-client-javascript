@@ -2,16 +2,25 @@
  * @ignore
  */
 export default class {
-    getPerformanceInfo() {
-        let timing = window.performance.timing,
-            interactive = timing.domInteractive - timing.domLoading,
-            dcl = timing.domContentLoadedEventStart - timing.domLoading,
-            complete = timing.domComplete - timing.domLoading;
-        return {
-            ptInteractive: interactive >= 0 ? interactive : undefined,
-            ptDcl: dcl >= 0 ? dcl : undefined,
-            ptComplete: complete >= 0 ? complete : undefined
-        };
+    getPerformanceInfo(targetWindow) {
+        if('navigation' in window[targetWindow].performance && 'timing' in window[targetWindow].performance){
+            let timing = window[targetWindow].performance.timing,
+                nav = window[targetWindow].performance.navigation,
+                interactive = timing.domInteractive - timing.domLoading,
+                dcl = timing.domContentLoadedEventStart - timing.domLoading,
+                complete = timing.domComplete - timing.domLoading,
+                elapsedMs = (new Date()).getTime() - timing.domLoading;
+            return {
+                ptInteractive: interactive >= 0 ? interactive : undefined,
+                ptDcl: dcl >= 0 ? dcl : undefined,
+                ptComplete: complete >= 0 ? complete : undefined,
+                ptElapsedMs: elapsedMs >= 0 ? elapsedMs : undefined,
+                ptNavType: nav.type,
+                ptNavRdCnt: nav.redirectCount,
+            };
+        }else{
+            return {}
+        }
     }
 
     getClientInfo(targetWindow) {

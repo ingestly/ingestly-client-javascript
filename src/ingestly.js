@@ -118,7 +118,7 @@ export default class Ingestly {
             mandatory,
             eventContext,
             utils.getClientInfo(targetWindow),
-            'performance' in window[targetWindow] ? utils.getPerformanceInfo() : {}
+            'performance' in window[targetWindow] ? utils.getPerformanceInfo(targetWindow) : {}
         ]);
         prevTimestamp = now;
 
