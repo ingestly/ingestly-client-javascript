@@ -15,8 +15,8 @@ export default class {
                 ptDcl: dcl >= 0 ? dcl : undefined,
                 ptComplete: complete >= 0 ? complete : undefined,
                 ptElapsedMs: elapsedMs >= 0 ? elapsedMs : undefined,
-                ptNavType: nav.type,
-                ptNavRdCnt: nav.redirectCount,
+                nvType: nav.type,
+                nvRdCnt: nav.redirectCount,
             };
         }else{
             return {}
