@@ -11,7 +11,7 @@ export default class {
                 complete = timing.domComplete - timing.domLoading,
                 elapsedMs = (new Date()).getTime() - timing.domLoading;
             return {
-                ptTti: interactive >= 0 ? interactive : undefined,
+                ptTti: tti >= 0 ? tti : undefined,
                 ptDcl: dcl >= 0 ? dcl : undefined,
                 ptComplete: complete >= 0 ? complete : undefined,
                 ptElapsedMs: elapsedMs >= 0 ? elapsedMs : undefined,
