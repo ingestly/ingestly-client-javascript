@@ -6,7 +6,7 @@ export default class {
         if('navigation' in window[targetWindow].performance && 'timing' in window[targetWindow].performance){
             const timing = window[targetWindow].performance.timing,
                 nav = window[targetWindow].performance.navigation,
-                interactive = timing.domInteractive - timing.domLoading,
+                tti = timing.domInteractive - timing.domLoading,
                 dcl = timing.domContentLoadedEventStart - timing.domLoading,
                 complete = timing.domComplete - timing.domLoading,
                 elapsedMs = (new Date()).getTime() - timing.domLoading;
