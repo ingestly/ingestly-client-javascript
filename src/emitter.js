@@ -21,9 +21,8 @@ const xhr = (url, callback) => {
 };
 
 const generateDestination = (feature, payload, deviceId, rootId) => {
-    const timestamp = (+new Date).toString(36),
-        protocol = (document.location && document.location.protocol === 'https:') ? 'https:' : 'http:';
-    let url = `${protocol}//${config.endpoint}/${feature}/${timestamp}/`;
+    const timestamp = (+new Date).toString(36);
+    let url = `https://${config.endpoint}/${feature}/${timestamp}/`;
     url += `?key=${config.apiKey}`;
     url += `&sdk=${config.sdkName}-${config.sdkVersion}`;
     url += `&ingestlyId=${deviceId}`;
