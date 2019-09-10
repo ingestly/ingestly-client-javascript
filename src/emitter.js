@@ -24,7 +24,7 @@ const generateDestination = (feature, payload, deviceId, rootId) => {
     const timestamp = (+new Date).toString(36);
     let url = `https://${config.endpoint}/${feature}/${timestamp}/`;
     url += `?key=${config.apiKey}`;
-    url += `&sdk=${config.sdkName}-${config.sdkVersion}`;
+    url += `&sdk=JS-${config.sdkVersion}`;
     url += `&ingestlyId=${deviceId}`;
     url += `&rootId=${rootId}`;
 
