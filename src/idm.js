@@ -9,7 +9,7 @@ const generateId = () => {
 };
 
 const readCookie = (key) => {
-    const cookies = window.parent.document.cookie || '';
+    const cookies = doc.cookie || '';
     return ((`; ${cookies};`).match(`; ${key}=([^¥S;]*)`) || [])[1];
 };
 
@@ -29,7 +29,7 @@ const initDeviceId = () => {
     return deviceId;
 };
 
-let storageKey, initialId, isNewId = false;
+let storageKey, initialId, isNewId = false, doc;
 
 /**
  * @ignore
@@ -41,14 +41,14 @@ export default class {
         this.deviceId = initDeviceId();
         this.rootId = initialId;
         this.isNewId = isNewId;
+        this.doc = config.doc;
     }
-
     setDeviceId(deviceId) {
         this.deviceId = deviceId;
         try {
             localStorage.setItem(storageKey, deviceId);
         } catch (e) {
-            window.parent.document.cookie
+            this.doc.cookie
                 = `${storageKey}=${deviceId}; Path=/; Max-Age=31536000; SameSite=Lax`
         }
     }

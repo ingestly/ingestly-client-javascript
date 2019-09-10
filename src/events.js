@@ -1,4 +1,4 @@
-let managedEvents = {}, handlerKey = 0;
+let targetWindow, managedEvents = {}, handlerKey = 0;
 
 /**
  * @ignore
@@ -6,25 +6,26 @@ let managedEvents = {}, handlerKey = 0;
 export default class {
     constructor(config) {
         let event, timer;
+        targetWindow = config.targetWindow;
 
         try {
             event = new CustomEvent(config.eventName);
         } catch (e) {
-            event = window.parent.document.createEvent('CustomEvent');
+            event = targetWindow.document.createEvent('CustomEvent');
             event.initCustomEvent(config.eventName, false, false, {});
         }
 
-        window.parent.requestAnimationFrame = window.parent.requestAnimationFrame
-            || window.parent.mozRequestAnimationFrame
-            || window.parent.webkitRequestAnimationFrame;
+        targetWindow.requestAnimationFrame = targetWindow.requestAnimationFrame
+            || targetWindow.mozRequestAnimationFrame
+            || targetWindow.webkitRequestAnimationFrame;
 
         (function recurringEvent() {
-            window.parent.requestAnimationFrame(recurringEvent);
+            targetWindow.requestAnimationFrame(recurringEvent);
             if (timer) {
                 return false;
             }
             timer = setTimeout( () => {
-                window.parent.dispatchEvent(event);
+                targetWindow.dispatchEvent(event);
                 timer = null;
             }, config.eventFrequency);
         })();

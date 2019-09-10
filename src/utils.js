@@ -3,9 +3,9 @@
  */
 export default class {
     getPerformanceInfo(targetWindow) {
-        if('navigation' in window[targetWindow].performance && 'timing' in window[targetWindow].performance){
-            const timing = window[targetWindow].performance.timing,
-                nav = window[targetWindow].performance.navigation,
+        if('navigation' in targetWindow.performance && 'timing' in targetWindow.performance){
+            const timing = targetWindow.performance.timing,
+                nav = targetWindow.performance.navigation,
                 tti = timing.domInteractive - timing.domLoading,
                 dcl = timing.domContentLoadedEventStart - timing.domLoading,
                 complete = timing.domComplete - timing.domLoading,
@@ -69,10 +69,10 @@ export default class {
         }
 
         return {
-            vpHeight: window[targetWindow].innerHeight,
-            vpWidth: window[targetWindow].innerWidth,
-            scHeight: window[targetWindow].screen.height,
-            scWidth: window[targetWindow].screen.width,
+            vpHeight: targetWindow.innerHeight,
+            vpWidth: targetWindow.innerWidth,
+            scHeight: targetWindow.screen.height,
+            scWidth: targetWindow.screen.width,
             scOrientation: orientation,
             dvType: deviceType,
             dvOs: deviceOs,
@@ -113,12 +113,12 @@ export default class {
             targetRect = {};
         }
 
-        const viewportHeight = window[targetWindow].innerHeight;
-        const documentHeight = window[targetWindow].document.documentElement.scrollHeight;
-        const documentIsVisible = window[targetWindow].document.visibilityState || 'unknown';
-        const documentVisibleTop = 'pageYOffset' in window[targetWindow] ?
-            window[targetWindow].pageYOffset :
-            (window[targetWindow].document.documentElement || window[targetWindow].document.body.parentNode || window[targetWindow].document.body).scrollTop;
+        const viewportHeight = targetWindow.innerHeight;
+        const documentHeight = targetWindow.document.documentElement.scrollHeight;
+        const documentIsVisible = targetWindow.document.visibilityState || 'unknown';
+        const documentVisibleTop = 'pageYOffset' in targetWindow ?
+            targetWindow.pageYOffset :
+            (targetWindow.document.documentElement || targetWindow.document.body.parentNode || targetWindow.document.body).scrollTop;
         const documentVisibleBottom = documentVisibleTop + viewportHeight;
         const targetHeight = targetRect.height;
         const targetMarginTop = targetRect.top <= 0 ? 0 : targetRect.top;
@@ -181,12 +181,12 @@ export default class {
         };
     }
 
-    queryMatch(selector, target, targetFlag = 'data-trackable') {
+    queryMatch(selector, targetWindow, target, targetFlag = 'data-trackable') {
         let element, category = 'button', p = [];
         if (target.nodeType === 3) {
             target = target.parentNode;
         }
-        while (target && target !== window.parent.document) {
+        while (target && target !== targetWindow.document) {
             let matches = (target.matches || target.msMatchesSelector || function () {
                 return false;
             }).bind(target);
