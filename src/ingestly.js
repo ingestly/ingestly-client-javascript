@@ -4,7 +4,6 @@ import IDM from './idm';
 import Utils from './utils';
 
 const
-    sdkName = 'JS',
     sdkVersion = '0.6.1',
     initTimestamp = new Date();
 
@@ -40,7 +39,6 @@ export default class Ingestly {
         emitter = new Emitter({
             endpoint: config.endpoint,
             apiKey: config.apiKey,
-            sdkName: sdkName,
             sdkVersion: sdkVersion,
             deviceId: idm.deviceId,
             rootId: idm.rootId,

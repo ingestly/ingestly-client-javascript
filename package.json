@@ -8,7 +8,8 @@
     "build": "webpack",
     "jsdoc": "jsdoc ./src -c jsdoc.conf.json",
     "lint": "eslint ./src",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "format": "prettier --write 'src/*.js'"
   },
   "repository": {
     "type": "git",
@@ -29,6 +30,7 @@
     "babel-loader": "^8.0.6",
     "eslint": "^5.16.0",
     "jsdoc": "^3.6.3",
+    "prettier": "^1.18.2",
     "webpack": "^4.39.2",
     "webpack-cli": "^3.3.7"
   }
