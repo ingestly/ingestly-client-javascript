@@ -36,6 +36,10 @@
                 media: {
                     enable: true,
                     heartbeat: 5
+                },
+                form: {
+                    enable: true,
+                    targets: [].slice.call(window.document.getElementsByTagName('form'))
                 }
             }
         });
