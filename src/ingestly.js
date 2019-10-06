@@ -5,11 +5,11 @@ import Utils from './utils';
 
 const
     sdkVersion = '0.6.1',
-    initTimestamp = new Date();
+    initTimestamp = +new Date();
 
-let config, targetWindow, idm, emitter, events, utils, parsedUrl, parsedReferrer,
-    eventHandlerKeys = {media: []},
-    prevTimestamp = new Date();
+let config, targetWindow, idm, emitter, events, utils, parsedUrl, parsedReferrer, unloadEvent,
+    eventHandlerKeys = {media: [], form: []},
+    prevTimestamp = +new Date();
 
 /**
  * @ignore
@@ -19,6 +19,7 @@ export default class Ingestly {
     constructor() {
         this.dataModel = {};
         this.trackReadTargets = [];
+        this.trackFormTargets = [];
     }
 
     /**
@@ -43,6 +44,13 @@ export default class Ingestly {
         targetWindow = config.targetWindow;
         parsedUrl = utils.parseUrl(window[targetWindow].document.location.href);
         parsedReferrer = utils.parseUrl(window[targetWindow].document.referrer);
+        if ('onbeforeunload' in window[targetWindow]) {
+            unloadEvent = 'beforeunload';
+        } else if ('onpagehide' in window[targetWindow]) {
+            unloadEvent = 'pagehide';
+        } else {
+            unloadEvent = 'unload';
+        }
     }
 
     /**
@@ -95,6 +103,11 @@ export default class Ingestly {
         if (config.options && config.options.media && config.options.media.enable) {
             this.trackMedia();
         }
+
+        if (config.options && config.options.form && config.options.form.enable) {
+            this.trackFormTargets = [].slice.call(config.options.form.targets);
+            this.trackForm();
+        }
     }
 
     /**
@@ -104,12 +117,12 @@ export default class Ingestly {
      * @param  {Object} eventContext Additional data.
      */
     trackAction(action = 'unknown', category = 'unknown', eventContext = {}) {
-        const now = new Date();
+        const now = +new Date();
         const mandatory = {
             action: action,
             category: category,
-            sinceInitMs: now.getTime() - initTimestamp.getTime(),
-            sincePrevMs: now.getTime() - prevTimestamp.getTime()
+            sinceInitMs: now - initTimestamp,
+            sincePrevMs: now - prevTimestamp
         };
         const payload = utils.mergeObj([
             this.dataModel,
@@ -153,14 +166,6 @@ export default class Ingestly {
      * Add a tracker to the unload event.
      */
     trackUnload() {
-        let unloadEvent;
-        if ('onbeforeunload' in window[targetWindow]) {
-            unloadEvent = 'beforeunload';
-        } else if ('onpagehide' in window[targetWindow]) {
-            unloadEvent = 'pagehide';
-        } else {
-            unloadEvent = 'unload';
-        }
         events.removeListener(eventHandlerKeys['unload']);
         eventHandlerKeys['unload'] = events.addListener(window[targetWindow], unloadEvent, () => {
             this.trackAction('unload', 'page', {});
@@ -299,6 +304,32 @@ export default class Ingestly {
         }, {capture: true});
     }
 
+    /**
+     * Measure stats for form completion
+     */
+    trackForm() {
+        if (!this.trackFormTargets || this.trackFormTargets.length === 0) {
+            return;
+        }
+        const targetEvents = ['focus', 'change'];
+        for (let i = 0; i < this.trackFormTargets.length; i++) {
+            let formDetail = {
+                'fmName': this.trackFormTargets[i].name || this.trackFormTargets[i].id || '-',
+                'fmAttr': this.trackFormTargets[i].dataset,
+                'fmItems': {}
+            };
+            for (let j = 0; j < targetEvents.length; j++) {
+                events.removeListener(eventHandlerKeys['form'][targetEvents[j]]);
+                eventHandlerKeys['form'][targetEvents[j]] = events.addListener(this.trackFormTargets[i], targetEvents[j], (event) => {
+                    formDetail = utils.getFormStats(formDetail, targetEvents[j], event.target, initTimestamp);
+                }, true);
+            }
+            events.removeListener(eventHandlerKeys['unload']);
+            eventHandlerKeys['unload'] = events.addListener(window[targetWindow], unloadEvent, () => {
+                this.trackAction('stats', 'form', formDetail);
+            }, false);
+        }
+    }
 
     /**
      * Get a value for specified key name in GET parameter.

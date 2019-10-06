@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Form Page</title>
+</head>
+<body style="margin: 0; padding: 0;">
+<div style="width: 840px; margin: 40px 50px; padding: 0;">
+    <header id="header"  style="width: 100%; margin: 0; padding: 0;">
+        <div style="float: left; height: 100px; width: 60%">
+            <h1 id="title">Form Page</h1>
+        </div>
+        <div style="float: right; height: 100px; width: 40%; text-align: right;">
+            <button id="login">Login</button>
+            <button id="sign-up" >Sign up</button>
+        </div>
+    </header>
+    <div id="body" style="margin-left: auto; margin-right: auto; clear: both; width: 100%">
+        <div id="menu"  style="float: left; width: 20%">
+            <ul>
+                <li><a href="./?page=1">Page 1</a></li>
+                <li><a href="./?page=2"">Page 2</a></li>
+                <li><a href="./?page=3">Page 3</a></li>
+                <li><a href="./?page=4">Page 4</a></li>
+                <li><a href="./form.html">Form Page</a></li>
+            </ul>
+        </div>
+        <div id="content" style="float: right; width: 80%">
+            <form name="form1">
+                <input type="text" name="form_text" id="form_text" />
+                <input type="checkbox" name="form_checkbox" id="form_checkbox" />
+            </form>
+        </div>
+    </div>
+    <footer id="footer" style="clear: both;">
+        <p>Copyright</p>
+    </footer>
+</div>
+<script src="../dist/ingestly.js"></script>
+<script src="page_code.js"></script>
+</body>
+</html>
