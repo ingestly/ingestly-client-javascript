@@ -124,6 +124,16 @@ npm run build
 |:---|:---|:---|
 |heartbeat|`5`|ここで指定した X秒 ごとにハートビート計測が発動します|
 
+### フォーム分析
+
+- Form Analysisはフォームの完了についての統計情報を提供します。フォームのフィールドに入力された値は含みません
+- この機能は、フォームo要素のリストを渡すことで、複数のフォームに対応します
+- `config()` の中で、 `options.form.enable` に対して `true` を設定し、設定値を調整します：
+
+|変数|例|説明|
+|:---|:---|:---|
+|targets|`document.getElementsByTagName('form')`|フォーム要素のリストを渡します|
+
 
 ## API instructions
 
