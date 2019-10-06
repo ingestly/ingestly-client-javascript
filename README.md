@@ -124,6 +124,16 @@ You can enable optional tracking features.
 |:---|:---|:---|
 |heartbeat|`5`|the heart-beat tracker will be dispatched every X sec defined here|
 
+### Form Analysis
+
+- Form Analysis provides a statistics info regarding the form completion but not values of form fields.
+- This feature accepts multiple forms by passing a list of target element of forms.
+- In `config()`, set `true` for `options.form.enable` and adjust values:
+
+|variable|example|description|
+|:---|:---|:---|
+|targets|`document.getElementsByTagName('form')`|A list of form elements.|
+
 
 ## API instructions
 
