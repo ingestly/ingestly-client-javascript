@@ -324,8 +324,8 @@ export default class Ingestly {
                     formDetail = utils.getFormStats(formDetail, targetEvents[j], event.target, initTimestamp);
                 }, true);
             }
-            events.removeListener(eventHandlerKeys['unload']);
-            eventHandlerKeys['unload'] = events.addListener(window[targetWindow], unloadEvent, () => {
+            events.removeListener(eventHandlerKeys['form_emit']);
+            eventHandlerKeys['form_emit'] = events.addListener(window[targetWindow], unloadEvent, () => {
                 this.trackAction('stats', 'form', formDetail);
             }, false);
         }

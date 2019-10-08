@@ -1,6 +1,6 @@
 {
   "name": "ingestly-client-javascript",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Ingestly Client JavaScript SDK for modern web analytics.",
   "main": "dist/ingestly.js",
   "scripts": {
