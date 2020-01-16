@@ -218,7 +218,7 @@ export default class Ingestly {
                         clText: element.innerText || element.value || undefined,
                         clAttr: element.dataset || undefined,
                     };
-                    this.trackAction('click', trackableElement.category, utils.mergeObj(metaContext, eventContext));
+                    this.trackAction('click', trackableElement.category, utils.mergeObj([metaContext, eventContext]));
                 }
             },
             false
@@ -261,7 +261,7 @@ export default class Ingestly {
                                     srDepth: currentVal,
                                     srUnit: scrollUnit,
                                 };
-                                this.trackAction('scroll', 'page', utils.mergeObj(metaContext, eventContext));
+                                this.trackAction('scroll', 'page', utils.mergeObj([metaContext, eventContext]));
                                 prevVal = scrollUnit === 'percent' ? currentVal : currentVal + each;
                             }
                         }, limit);
@@ -312,7 +312,7 @@ export default class Ingestly {
                                         rdRate: currentVals[i],
                                         rdAttr: this.trackReadTargets[i].dataset || undefined,
                                     };
-                                    this.trackAction('read', 'content', utils.mergeObj(metaContext, eventContext));
+                                    this.trackAction('read', 'content', utils.mergeObj([metaContext, eventContext]));
                                     if (currentVals[i] === 100) {
                                         this.trackReadTargets.splice(i, 1);
                                     }
@@ -344,7 +344,7 @@ export default class Ingestly {
                     this.trackAction(
                         event.type,
                         event.target.tagName.toLowerCase(),
-                        utils.mergeObj(metaContext, eventContext)
+                        utils.mergeObj([metaContext, eventContext])
                     );
                 },
                 { capture: true }
@@ -365,7 +365,7 @@ export default class Ingestly {
                         this.trackAction(
                             event.type,
                             event.target.tagName.toLowerCase(),
-                            utils.mergeObj(metaContext, eventContext)
+                            utils.mergeObj([metaContext, eventContext])
                         );
                     }
                     flags[event.target.src] = false;
@@ -405,7 +405,7 @@ export default class Ingestly {
                 window[targetWindow],
                 unloadEvent,
                 () => {
-                    this.trackAction('stats', 'form', utils.mergeObj(metaContext, eventContext));
+                    this.trackAction('stats', 'form', utils.mergeObj([metaContext, eventContext]));
                 },
                 false
             );
