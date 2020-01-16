@@ -1,4 +1,5 @@
-let managedEvents = {}, handlerKey = 0;
+let managedEvents = {},
+    handlerKey = 0;
 
 /**
  * @ignore
@@ -14,38 +15,38 @@ export default class {
             event.initCustomEvent(config.eventName, false, false, {});
         }
 
-        window.parent.requestAnimationFrame = window.parent.requestAnimationFrame
-            || window.parent.mozRequestAnimationFrame
-            || window.parent.webkitRequestAnimationFrame;
+        window.parent.requestAnimationFrame =
+            window.parent.requestAnimationFrame ||
+            window.parent.mozRequestAnimationFrame ||
+            window.parent.webkitRequestAnimationFrame;
 
         (function recurringEvent() {
             window.parent.requestAnimationFrame(recurringEvent);
             if (timer) {
                 return false;
             }
-            timer = setTimeout( () => {
+            timer = setTimeout(() => {
                 window.parent.dispatchEvent(event);
                 timer = null;
             }, config.eventFrequency);
         })();
     }
 
-    addListener(element, type, listener, capture){
+    addListener(element, type, listener, capture) {
         element.addEventListener(type, listener, capture);
         managedEvents[handlerKey] = {
             element: element,
             type: type,
             listener: listener,
-            capture: capture
+            capture: capture,
         };
         return handlerKey++;
     }
 
-    removeListener(handlerKey){
+    removeListener(handlerKey) {
         if (handlerKey in managedEvents) {
             let event = managedEvents[handlerKey];
             event.element.removeEventListener(event.type, event.listener, event.capture);
         }
     }
-
 }

@@ -21,7 +21,7 @@ const xhr = (url, callback) => {
 };
 
 const generateDestination = (feature, payload, deviceId, rootId) => {
-    const timestamp = (+new Date).toString(36);
+    const timestamp = (+new Date()).toString(36);
     let url = `https://${config.endpoint}/${feature}/${timestamp}/`;
     url += `?key=${config.apiKey}`;
     url += `&sdk=JS-${config.sdkVersion}`;
@@ -36,17 +36,18 @@ const generateDestination = (feature, payload, deviceId, rootId) => {
 };
 
 const generateParamPair = (key, val) => {
-    if(typeof val === 'object'){
+    if (typeof val === 'object') {
         val = JSON.stringify(val);
     }
     if (typeof val !== 'undefined' && val !== '' && val !== '{}') {
-        return (`&${key}=${encodeURIComponent(val)}`);
+        return `&${key}=${encodeURIComponent(val)}`;
     } else {
         return '';
     }
 };
 
-let config, status = true;
+let config,
+    status = true;
 
 /**
  * @ignore
@@ -65,10 +66,13 @@ export default class {
                 status = false;
             }
             if (!status) {
-                if (typeof window[config.target].fetch === 'function' && typeof window[config.target].AbortController === 'function') {
+                if (
+                    typeof window[config.target].fetch === 'function' &&
+                    typeof window[config.target].AbortController === 'function'
+                ) {
                     const controller = new AbortController();
                     const signal = controller.signal;
-                    const option = {signal, method: 'POST', cache: 'no-store', keepalive: true};
+                    const option = { signal, method: 'POST', cache: 'no-store', keepalive: true };
                     setTimeout(() => controller.abort(), 4000);
                     window[config.target].fetch(url, option);
                 } else {
@@ -82,22 +86,26 @@ export default class {
 
     sync(payload, callback) {
         let url = generateDestination('ingestly-sync', payload, config.deviceId, config.rootId);
-        if (typeof window[config.target].fetch === 'function' && typeof window[config.target].AbortController === 'function') {
+        if (
+            typeof window[config.target].fetch === 'function' &&
+            typeof window[config.target].AbortController === 'function'
+        ) {
             const controller = new AbortController();
             const signal = controller.signal;
-            const option = {signal, method: 'GET', cache: 'no-store', keepalive: true};
+            const option = { signal, method: 'GET', cache: 'no-store', keepalive: true };
             setTimeout(() => controller.abort(), 4000);
-            window[config.target].fetch(url, option).then((response) => {
+            window[config.target]
+                .fetch(url, option)
+                .then(response => {
                     return response.json();
-                }
-            ).then((result) => {
-                callback.call(null, result.id);
-            });
+                })
+                .then(result => {
+                    callback.call(null, result.id);
+                });
         } else {
-            xhr(url, (result) => {
+            xhr(url, result => {
                 callback.call(null, result.id);
             });
         }
     }
 }
-

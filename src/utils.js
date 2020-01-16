@@ -3,7 +3,7 @@
  */
 export default class {
     getPerformanceInfo(targetWindow) {
-        if('navigation' in window[targetWindow].performance && 'timing' in window[targetWindow].performance){
+        if ('navigation' in window[targetWindow].performance && 'timing' in window[targetWindow].performance) {
             const timing = window[targetWindow].performance.timing,
                 nav = window[targetWindow].performance.navigation,
                 tti = timing.domInteractive - timing.domLoading,
@@ -18,15 +18,15 @@ export default class {
                 nvType: nav.type,
                 nvRdCnt: nav.redirectCount,
             };
-        }else{
-            return {}
+        } else {
+            return {};
         }
     }
 
     getClientInfo(targetWindow) {
         const ua = navigator.userAgent;
         let orientation = screen.orientation || screen.mozOrientation || screen.msOrientation || 'not-supported';
-        if(typeof orientation === 'object'){
+        if (typeof orientation === 'object') {
             orientation = orientation.type;
         }
         let deviceType, deviceOs;
@@ -76,7 +76,7 @@ export default class {
             scOrientation: orientation,
             dvType: deviceType,
             dvOs: deviceOs,
-            dvPlatform: navigator.platform
+            dvPlatform: navigator.platform,
         };
     }
 
@@ -86,7 +86,7 @@ export default class {
                 mdSrc: element.src,
                 mdCurrentTime: Math.round(element.currentTime * 10) / 10,
                 mdDuration: Math.round(element.duration * 10) / 10,
-                mdPlayedPercent: Math.round(element.currentTime / element.duration * 1000) / 10,
+                mdPlayedPercent: Math.round((element.currentTime / element.duration) * 1000) / 10,
                 mdAttr: {
                     type: element.type || undefined,
                     width: element.clientWidth || undefined,
@@ -95,10 +95,9 @@ export default class {
                     defaultMuted: element.defaultMuted || false,
                     autoplay: element.autoplay || false,
                     playerId: element.playerId || undefined,
-                    dataset: element.dataset
-                }
+                    dataset: element.dataset,
+                },
             };
-
         } else {
             return false;
         }
@@ -111,29 +110,33 @@ export default class {
             for (let i = 0; i < targetElement.length; i++) {
                 targetElement[i].selected ? valueLength++ : false;
             }
-        } else if (targetElement.tagName.toLowerCase() === 'input' && (targetElement.type === 'checkbox' || targetElement.type === 'radio')) {
+        } else if (
+            targetElement.tagName.toLowerCase() === 'input' &&
+            (targetElement.type === 'checkbox' || targetElement.type === 'radio')
+        ) {
             valueLength = targetElement.checked ? 1 : 0;
         } else {
             valueLength = targetElement.value.length;
         }
         if (targetElement.type !== 'hidden') {
             formDetail.fmItems[elementName] = {
-                'status': targetEvent,
-                'length': valueLength
+                status: targetEvent,
+                length: valueLength,
             };
         }
         if (!formDetail.fmFirstItem) {
             formDetail.fmFirstItem = targetElement.name || targetElement.id || '-';
-            formDetail.fmStartedSinceInitMs = +new Date - initTimestamp;
+            formDetail.fmStartedSinceInitMs = +new Date() - initTimestamp;
         }
         formDetail.fmLastItem = targetElement.name || targetElement.id || '-';
-        formDetail.fmEndedSinceInitMs = +new Date - initTimestamp;
+        formDetail.fmEndedSinceInitMs = +new Date() - initTimestamp;
         formDetail.fmDurationMs = formDetail.fmEndedSinceInitMs - formDetail.fmStartedSinceInitMs;
         return formDetail;
     }
 
     getVisibility(targetElement, targetWindow) {
-        let textLength = 0, targetRect = {};
+        let textLength = 0,
+            targetRect = {};
         try {
             targetRect = targetElement.getBoundingClientRect();
             textLength = targetElement.innerText.length;
@@ -144,17 +147,25 @@ export default class {
         const viewportHeight = window[targetWindow].innerHeight;
         const documentHeight = window[targetWindow].document.documentElement.scrollHeight;
         const documentIsVisible = window[targetWindow].document.visibilityState || 'unknown';
-        const documentVisibleTop = 'pageYOffset' in window[targetWindow] ?
-            window[targetWindow].pageYOffset :
-            (window[targetWindow].document.documentElement || window[targetWindow].document.body.parentNode || window[targetWindow].document.body).scrollTop;
+        const documentVisibleTop =
+            'pageYOffset' in window[targetWindow]
+                ? window[targetWindow].pageYOffset
+                : (
+                      window[targetWindow].document.documentElement ||
+                      window[targetWindow].document.body.parentNode ||
+                      window[targetWindow].document.body
+                  ).scrollTop;
         const documentVisibleBottom = documentVisibleTop + viewportHeight;
         const targetHeight = targetRect.height;
         const targetMarginTop = targetRect.top <= 0 ? 0 : targetRect.top;
-        const targetMarginBottom = (targetRect.bottom - viewportHeight) * -1 <= 0 ? 0 : (targetRect.bottom - viewportHeight) * -1;
+        const targetMarginBottom =
+            (targetRect.bottom - viewportHeight) * -1 <= 0 ? 0 : (targetRect.bottom - viewportHeight) * -1;
         const documentScrollUntil = documentVisibleBottom;
         const documentScrollRate = documentVisibleBottom / documentHeight;
 
-        let targetVisibleTop = null, targetVisibleBottom = null, isInView = false;
+        let targetVisibleTop = null,
+            targetVisibleBottom = null,
+            isInView = false;
 
         if (targetRect.top >= 0 && targetRect.bottom > viewportHeight && targetRect.top >= viewportHeight) {
             // pre
@@ -202,22 +213,28 @@ export default class {
             tMarginTop: targetMarginTop,
             tMarginBottom: targetMarginBottom,
             tScrollUntil: targetVisibleBottom,
-            tScrollRate: (targetVisibleBottom / targetHeight),
-            tViewableRate: ((targetVisibleBottom - targetVisibleTop) / targetHeight),
+            tScrollRate: targetVisibleBottom / targetHeight,
+            tViewableRate: (targetVisibleBottom - targetVisibleTop) / targetHeight,
             tIsInView: isInView,
-            tLength: textLength
+            tLength: textLength,
         };
     }
 
     queryMatch(selector, target, targetFlag = 'data-trackable') {
-        let element, category = 'button', p = [];
+        let element,
+            category = 'button',
+            p = [];
         if (target.nodeType === 3) {
             target = target.parentNode;
         }
         while (target && target !== window.parent.document) {
-            let matches = (target.matches || target.msMatchesSelector || function () {
-                return false;
-            }).bind(target);
+            let matches = (
+                target.matches ||
+                target.msMatchesSelector ||
+                function() {
+                    return false;
+                }
+            ).bind(target);
             if (target.hasAttribute(targetFlag)) {
                 p.unshift(target.getAttribute(targetFlag));
             }
@@ -235,7 +252,7 @@ export default class {
             return {
                 element: element,
                 category: category,
-                path: p.join('>')
+                path: p.join('>'),
             };
         } else {
             return false;
@@ -259,14 +276,19 @@ export default class {
     }
 
     parseUrl(url) {
-        let query, result = {}, parser = document.createElement('a');
+        let query,
+            result = {},
+            parser = document.createElement('a');
         if (url) {
             parser.href = url;
-            query = parser.search.slice(1).split('&').reduce((obj, val) => {
-                let pair = val.split('=');
-                obj[pair[0]] = pair[1];
-                return obj;
-            }, {});
+            query = parser.search
+                .slice(1)
+                .split('&')
+                .reduce((obj, val) => {
+                    let pair = val.split('=');
+                    obj[pair[0]] = pair[1];
+                    return obj;
+                }, {});
             result = {
                 Protocol: parser.protocol,
                 Host: parser.hostname,
@@ -274,8 +296,8 @@ export default class {
                 Path: parser.pathname,
                 Search: parser.search,
                 Hash: parser.hash,
-                Query: query
-            }
+                Query: query,
+            };
         }
         return result;
     }
