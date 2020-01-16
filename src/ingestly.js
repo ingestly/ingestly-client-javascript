@@ -156,27 +156,27 @@ export default class Ingestly {
     /**
      * Add a tracker to the onload event.
      */
-    trackPerformance(additionalContext = {}) {
+    trackPerformance(eventContext = {}) {
         events.removeListener(eventHandlerKeys['performance']);
         eventHandlerKeys['performance'] = events.addListener(window[targetWindow].document, 'DOMContentLoaded', () => {
-            this.trackAction('rum', 'page', additionalContext);
+            this.trackAction('rum', 'page', eventContext);
         }, false);
     }
 
     /**
      * Add a tracker to the unload event.
      */
-    trackUnload(additionalContext = {}) {
+    trackUnload(eventContext = {}) {
         events.removeListener(eventHandlerKeys['unload']);
         eventHandlerKeys['unload'] = events.addListener(window[targetWindow], unloadEvent, () => {
-            this.trackAction('unload', 'page', additionalContext);
+            this.trackAction('unload', 'page', eventContext);
         }, false);
     }
 
     /**
      * Add a tracker to the click event.
      */
-    trackClicks(additionalContext = {}) {
+    trackClicks(eventContext = {}) {
         events.removeListener(eventHandlerKeys['click']);
         eventHandlerKeys['click'] = events.addListener(window[targetWindow].document.body, 'click', (clickEvent) => {
             const targetAttribute = config.options.clicks.targetAttr || 'data-trackable';
@@ -184,7 +184,7 @@ export default class Ingestly {
             let element = null;
             if (trackableElement) {
                 element = trackableElement.element;
-                let context = {
+                let metaContext = {
                     clTag: element.tagName,
                     clId: element.id || undefined,
                     clClass: element.className || undefined,
@@ -193,8 +193,7 @@ export default class Ingestly {
                     clText: element.innerText || element.value || undefined,
                     clAttr: element.dataset || undefined
                 };
-                Object.assign(context, additionalContext);
-                this.trackAction('click', trackableElement.category, context);
+                this.trackAction('click', trackableElement.category, utils.mergeObj(metaContext, eventContext));
             }
         }, false);
     }
@@ -202,7 +201,7 @@ export default class Ingestly {
     /**
      * Start scroll observation by using custom event
      */
-    trackScroll(additionalContext = {}) {
+    trackScroll(eventContext = {}) {
         const each = config.options.scroll.granularity || 20;
         const steps = 100 / each;
         const limit = config.options.scroll.threshold * 1000 || 2 * 1000;
@@ -222,13 +221,12 @@ export default class Ingestly {
                     || (scrollUnit === 'pixel' && currentVal > prevVal && currentVal >= each)) {
                     setTimeout(() => {
                         if (currentVal > prevVal) {
-                            let context = {
+                            let metaContext = {
                                 pgH: result.dHeight,
                                 srDepth: currentVal,
                                 srUnit: scrollUnit
                             };
-                            Object.assign(context, additionalContext);
-                            this.trackAction('scroll', 'page', context);
+                            this.trackAction('scroll', 'page', utils.mergeObj(metaContext, eventContext));
                             prevVal = (scrollUnit === 'percent') ? currentVal : currentVal + each;
                         }
                     }, limit);
@@ -240,7 +238,7 @@ export default class Ingestly {
     /**
      * Start Read-Through Rate observation by using custom event
      */
-    trackRead(additionalContext = {}) {
+    trackRead(eventContext = {}) {
         if (!this.trackReadTargets || this.trackReadTargets.length === 0) {
             return;
         }
@@ -259,7 +257,7 @@ export default class Ingestly {
                     if (currentVals[i] > prevVals[i] && currentVals[i] >= 0 && currentVals[i] <= 100) {
                         setTimeout(() => {
                             if (currentVals[i] > prevVals[i] && this.trackReadTargets[i]) {
-                                let context = {
+                                let metaContext = {
                                     rdIdx: i,
                                     rdId: this.trackReadTargets[i].id || undefined,
                                     rdTxS: this.trackReadTargets[i].innerText.substring(0, 12) || undefined,
@@ -268,8 +266,7 @@ export default class Ingestly {
                                     rdRate: currentVals[i],
                                     rdAttr: this.trackReadTargets[i].dataset || undefined
                                 };
-                                Object.assign(context, additionalContext);
-                                this.trackAction('read', 'content', context);
+                                this.trackAction('read', 'content', utils.mergeObj(metaContext, eventContext));
                                 if (currentVals[i] === 100) {
                                     this.trackReadTargets.splice(i, 1);
                                 }
@@ -286,16 +283,15 @@ export default class Ingestly {
     /**
      * Set eventListeners for Media Tracking
      */
-    trackMedia(additionalContext = {}) {
+    trackMedia(eventContext = {}) {
         const targetEvents = ['play', 'pause', 'ended'];
         const heartbeat = config.options.media.heartbeat || 5;
         let flags = {};
         for (let i = 0; i < targetEvents.length; i++) {
             events.removeListener(eventHandlerKeys['media'][targetEvents[i]]);
             eventHandlerKeys['media'][targetEvents[i]] = events.addListener(window[targetWindow].document.body, targetEvents[i], (event) => {
-                let context = utils.getMediaInfo(event.target);
-                Object.assign(context, additionalContext);
-                this.trackAction(event.type, event.target.tagName.toLowerCase(), context);
+                let metaContext = utils.getMediaInfo(event.target);
+                this.trackAction(event.type, event.target.tagName.toLowerCase(), utils.mergeObj(metaContext, eventContext));
             }, {capture: true});
         }
 
@@ -306,9 +302,8 @@ export default class Ingestly {
             }
             flags[event.target.src] = setTimeout(() => {
                 if (event.target.paused !== true && event.target.ended !== true) {
-                    let context = utils.getMediaInfo(event.target);
-                    Object.assign(context, additionalContext);
-                    this.trackAction(event.type, event.target.tagName.toLowerCase(), context);
+                    let metaContext = utils.getMediaInfo(event.target);
+                    this.trackAction(event.type, event.target.tagName.toLowerCase(), utils.mergeObj(metaContext, eventContext));
                 }
                 flags[event.target.src] = false;
             }, heartbeat * 1000);
@@ -318,13 +313,13 @@ export default class Ingestly {
     /**
      * Measure stats for form completion
      */
-    trackForm(additionalContext = {}) {
+    trackForm(eventContext = {}) {
         if (!this.trackFormTargets || this.trackFormTargets.length === 0) {
             return;
         }
         const targetEvents = ['focus', 'change'];
         for (let i = 0; i < this.trackFormTargets.length; i++) {
-            let formDetail = {
+            let metaContext = {
                 'fmName': this.trackFormTargets[i].name || this.trackFormTargets[i].id || '-',
                 'fmAttr': this.trackFormTargets[i].dataset,
                 'fmItems': {}
@@ -332,13 +327,12 @@ export default class Ingestly {
             for (let j = 0; j < targetEvents.length; j++) {
                 events.removeListener(eventHandlerKeys['form'][targetEvents[j]]);
                 eventHandlerKeys['form'][targetEvents[j]] = events.addListener(this.trackFormTargets[i], targetEvents[j], (event) => {
-                    formDetail = utils.getFormStats(formDetail, targetEvents[j], event.target, initTimestamp);
+                    metaContext = utils.getFormStats(metaContext, targetEvents[j], event.target, initTimestamp);
                 }, true);
             }
             events.removeListener(eventHandlerKeys['form_emit']);
             eventHandlerKeys['form_emit'] = events.addListener(window[targetWindow], unloadEvent, () => {
-                Object.assign(formDetail, additionalContext);
-                this.trackAction('stats', 'form', formDetail);
+                this.trackAction('stats', 'form', utils.mergeObj(metaContext, eventContext));
             }, false);
         }
     }
