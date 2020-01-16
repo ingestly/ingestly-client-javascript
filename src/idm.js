@@ -1,21 +1,21 @@
 const generateId = () => {
-    const timestamp = (+new Date).toString(36);
-    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const timestamp = (+new Date()).toString(36);
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
     for (let i = 0; i < 32; i++) {
-        result += chars[Math.floor(Math.random() * (chars.length))];
+        result += chars[Math.floor(Math.random() * chars.length)];
     }
     return `${timestamp}-${result}`;
 };
 
-const readCookie = (key) => {
+const readCookie = key => {
     const cookies = window.parent.document.cookie || '';
-    return ((`; ${cookies};`).match(`; ${key}=([^¥S;]*)`) || [])[1];
+    return (`; ${cookies};`.match(`; ${key}=([^¥S;]*)`) || [])[1];
 };
 
 const initDeviceId = () => {
     const idCookie = readCookie(storageKey) || '',
-    idStorage = localStorage.getItem(storageKey) || '';
+        idStorage = localStorage.getItem(storageKey) || '';
     let deviceId;
 
     if (idCookie.length > 8) {
@@ -29,7 +29,9 @@ const initDeviceId = () => {
     return deviceId;
 };
 
-let storageKey, initialId, isNewId = false;
+let storageKey,
+    initialId,
+    isNewId = false;
 
 /**
  * @ignore
@@ -48,8 +50,7 @@ export default class {
         try {
             localStorage.setItem(storageKey, deviceId);
         } catch (e) {
-            window.parent.document.cookie
-                = `${storageKey}=${deviceId}; Path=/; Max-Age=31536000; SameSite=Lax`
+            window.parent.document.cookie = `${storageKey}=${deviceId}; Path=/; Max-Age=31536000; SameSite=Lax`;
         }
     }
 }
