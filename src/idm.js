@@ -39,7 +39,6 @@ const initSessionId = () => {
         window.document.cookie = `${sesCookieKey}=${sessionId}; Path=/;`;
     }
     return sessionId;
-    console.log(sessionId);
 };
 
 let storageKey,
