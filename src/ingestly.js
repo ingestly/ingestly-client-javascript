@@ -3,7 +3,7 @@ import Events from './events';
 import IDM from './idm';
 import Utils from './utils';
 
-const sdkVersion = '0.6.3',
+const sdkVersion = '0.6.4',
     initTimestamp = +new Date();
 
 let config,
