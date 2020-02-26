@@ -7,29 +7,30 @@ let managedEvents = {},
 export default class {
     constructor(config) {
         let event, timer;
-
-        try {
-            event = new CustomEvent(config.eventName);
-        } catch (e) {
-            event = window.parent.document.createEvent('CustomEvent');
-            event.initCustomEvent(config.eventName, false, false, {});
-        }
-
-        window.parent.requestAnimationFrame =
-            window.parent.requestAnimationFrame ||
-            window.parent.mozRequestAnimationFrame ||
-            window.parent.webkitRequestAnimationFrame;
-
-        (function recurringEvent() {
-            window.parent.requestAnimationFrame(recurringEvent);
-            if (timer) {
-                return false;
+        if (config.eventName && config.eventFrequency > 0) {
+            try {
+                event = new CustomEvent(config.eventName);
+            } catch (e) {
+                event = window.top.document.createEvent('CustomEvent');
+                event.initCustomEvent(config.eventName, false, false, {});
             }
-            timer = setTimeout(() => {
-                window.parent.dispatchEvent(event);
-                timer = null;
-            }, config.eventFrequency);
-        })();
+
+            window.top.requestAnimationFrame =
+                window.top.requestAnimationFrame ||
+                window.top.mozRequestAnimationFrame ||
+                window.top.webkitRequestAnimationFrame;
+
+            (function recurringEvent() {
+                window.top.requestAnimationFrame(recurringEvent);
+                if (timer) {
+                    return false;
+                }
+                timer = setTimeout(() => {
+                    window.top.dispatchEvent(event);
+                    timer = null;
+                }, config.eventFrequency);
+            })();
+        }
     }
 
     addListener(element, type, listener, capture) {

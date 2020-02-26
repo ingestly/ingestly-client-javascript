@@ -220,14 +220,14 @@ export default class {
         };
     }
 
-    queryMatch(selector, target, targetFlag = 'data-trackable') {
+    queryMatch(selector, target, targetFlag = false) {
         let element,
             category = 'button',
             p = [];
         if (target.nodeType === 3) {
             target = target.parentNode;
         }
-        while (target && target !== window.parent.document) {
+        while (target && target !== window.top.document) {
             let matches = (
                 target.matches ||
                 target.msMatchesSelector ||
@@ -235,9 +235,20 @@ export default class {
                     return false;
                 }
             ).bind(target);
-            if (target.hasAttribute(targetFlag)) {
-                p.unshift(target.getAttribute(targetFlag));
+            if (targetFlag) {
+                if (target.hasAttribute(targetFlag)) {
+                    p.unshift(target.getAttribute(targetFlag));
+                }
+            } else {
+                let elm = target.tagName.toLowerCase();
+                if (elm !== 'html' && elm !== 'body') {
+                    if (target.id) {
+                        elm += `.${target.id}`;
+                    }
+                    p.unshift(elm);
+                }
             }
+
             if (!element && matches(selector)) {
                 if (target.tagName.toLowerCase() === 'a') {
                     category = 'link';
