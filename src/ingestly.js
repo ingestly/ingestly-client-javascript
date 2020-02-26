@@ -45,6 +45,7 @@ export default class Ingestly {
             apiKey: config.apiKey,
             sdkVersion: sdkVersion,
             deviceId: idm.deviceId,
+            sessionId: idm.sessionId,
             rootId: idm.rootId,
             target: config.targetWindow,
         });
@@ -74,7 +75,7 @@ export default class Ingestly {
             this.dataModel[`rf${key}`] = parsedReferrer[key];
         }
 
-        if (config.eventName && config.eventFrequency && typeof events === 'undefined') {
+        if (typeof events === 'undefined') {
             events = new Events({
                 eventName: config.eventName,
                 eventFrequency: config.eventFrequency,
@@ -200,7 +201,7 @@ export default class Ingestly {
             window[targetWindow].document.body,
             'click',
             clickEvent => {
-                const targetAttribute = config.options.clicks.targetAttr || 'data-trackable';
+                const targetAttribute = config.options.clicks.targetAttr || false;
                 const trackableElement = utils.queryMatch(
                     'a, button, input, [role="button"]',
                     clickEvent.target,

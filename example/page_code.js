@@ -1,10 +1,10 @@
 (function () {
     // Cut the mustard
-    if ('querySelector' in window.parent.document &&
-        'addEventListener' in window.parent
+    if ('querySelector' in window.top.document &&
+        'addEventListener' in window.top
     ) {
         Ingestly.config({
-            endpoint: 'stat.example.com',
+            endpoint: 'stats.example.com',
             apiKey: '2ee204330a7b2701a6bf413473fcc486',
             eventName: 'ingestlyRecurringEvent',
             eventFrequency: 250,
