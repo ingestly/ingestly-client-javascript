@@ -45,7 +45,7 @@ npm run build
 #### 構成
 
 1. `./dist/page_code.js` を開きます
-2. 7行目から33行目の設定変数を変更します：
+2. 7行目から44行目の設定変数を変更します：
     - `endpoint` : 構成した Ingestly Endpoint のホスト名
     - `apiKey` : エンドポイント用のAPIキー。IngestlyのFastly用Custom VCLの中で `true` としてリストされている必要があります
     - `eventName` : SDKはrequestAnimationFrameのタイミングに基づいて再帰的にイベントを発生させます。ここで発生させるイベント名を指定できます
@@ -53,6 +53,8 @@ npm run build
     - `prefix` : localStorage と Cookie で使うキー名の定義に用いられます
     - `targetWindow` : ターゲットとするウィンドウのプロパティ名。 `self`、 `parent` または `top` が利用可能です
 3. ファイルを保存します
+
+メモ： `eventName` と `eventFrequency` の一方またはいずれかを削除するか、 `eventFrequency` に `0` を指定すると、再帰イベントは無効は無効化されます。
 
 #### .js ファイルの設置
 
@@ -80,9 +82,10 @@ npm run build
 - ユーザーが特定のページビューの間に割いた正確な時間が得られます
 - `config()` の中で、 `options.unlaod.enable` に対して `true` を設定します
 
-### data-trackable によるクリック計測
+### クリック計測
 
 - クリック計測はクリックされた要素（またはその親要素）が、指定した `data-*` 属性を持っている場合に発動します
+- `options.clicks.enable` に `true` がセットされていながら、 `options.clicks.targetAttr` を省略した場合、クリック計測は `data-*` 属性のない要素に対するクリックを計測します
 - `config()` の中で、 `options.clicks.enable` に対して `true` を設定し、設定値を調整します：
 
 |変数|例|説明|
