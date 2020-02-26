@@ -45,7 +45,7 @@ npm run build
 #### Configuration
 
 1. Open `./dist/page_code.js`
-2. Change configuration variables between line 7 and 33:
+2. Change configuration variables between line 7 and 44:
     - `endpoint` : a hostname of Ingestly Endpoint you provisioned.
     - `apiKey` : an API key for the endpoint. This value must be listed as `true` in Fastly's Custom VCL for Ingestly.
     - `eventName` : the SDK dispatches a recurring event based on a timing of requestAnimationFrame. You can specify a name of this event.
@@ -53,6 +53,8 @@ npm run build
     - `prefix` : used for defining a key name of localStorage and Cookie.
     - `targetWindow` : a property name of target window. you can use `self`, `parent` or `top`. 
 3. Save the file.
+
+Note: If you remove `eventName` and/or `eventFrequency`, or set `0` for `eventFrequency`, the recurring event will be disabled.
 
 #### Place .js files
 
@@ -79,9 +81,10 @@ You can enable optional tracking features.
 - You can get an exact time that user spent during the specific pageview.
 - In `config()`, set `true` for `options.unload.enable`.
 
-### Clicks with data-trackable
+### Click Tracking
 
 - Click tracking is triggered if the clicked element (or its parent) has the specified `data-*` attribution. 
+- If you omit `options.clicks.targetAttr` but `options.clicks.enable` is `true`, Click tracking will measure clicks on elements without `data-*` attribution. 
 - In `config()`, set `true` for `options.clicks.enable` and adjust values:
 
 |variable|example|description|
