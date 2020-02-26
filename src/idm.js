@@ -2,14 +2,14 @@ const generateId = () => {
     const timestamp = (+new Date()).toString(36);
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
-    for (let i = 0; i < 32; i++) {
+    for (let i = 0; i < 16; i++) {
         result += chars[Math.floor(Math.random() * chars.length)];
     }
     return `${timestamp}-${result}`;
 };
 
 const readCookie = key => {
-    const cookies = window.parent.document.cookie || '';
+    const cookies = window.document.cookie || '';
     return (`; ${cookies};`.match(`; ${key}=([^¥S;]*)`) || [])[1];
 };
 
@@ -29,7 +29,21 @@ const initDeviceId = () => {
     return deviceId;
 };
 
+const initSessionId = () => {
+    const sesCookie = readCookie(sesCookieKey) || '';
+    let sessionId;
+    if (sesCookie.length > 8) {
+        sessionId = sesCookie;
+    } else {
+        sessionId = initialId;
+        window.document.cookie = `${sesCookieKey}=${sessionId}; Path=/;`;
+    }
+    return sessionId;
+    console.log(sessionId);
+};
+
 let storageKey,
+    sesCookieKey,
     initialId,
     isNewId = false;
 
@@ -40,8 +54,10 @@ export default class {
     constructor(config) {
         initialId = generateId();
         storageKey = `${config.prefix}-id`;
+        sesCookieKey = `${config.prefix}-ses`;
         this.deviceId = initDeviceId();
         this.rootId = initialId;
+        this.sessionId = initSessionId();
         this.isNewId = isNewId;
     }
 
@@ -50,7 +66,7 @@ export default class {
         try {
             localStorage.setItem(storageKey, deviceId);
         } catch (e) {
-            window.parent.document.cookie = `${storageKey}=${deviceId}; Path=/; Max-Age=31536000; SameSite=Lax`;
+            window.document.cookie = `${storageKey}=${deviceId}; Path=/; Max-Age=31536000;`;
         }
     }
 }
