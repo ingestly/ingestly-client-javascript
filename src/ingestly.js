@@ -171,7 +171,7 @@ export default class Ingestly {
             window[targetWindow].document,
             'DOMContentLoaded',
             () => {
-                this.trackAction('rum_2', 'page', eventContext);
+                this.trackAction('rum', 'page', eventContext);
             },
             false
         );
