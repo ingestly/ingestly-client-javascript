@@ -3,7 +3,7 @@ import Events from './events';
 import IDM from './idm';
 import Utils from './utils';
 
-const sdkVersion = '0.6.4',
+const sdkVersion = '0.6.5',
     initTimestamp = +new Date();
 
 let config,
@@ -89,7 +89,7 @@ export default class Ingestly {
             ) {
                 this.trackAction('rum', 'page', {});
             } else {
-                this.trackPerformance(targetWindow);
+                this.trackPerformance();
             }
         }
 
