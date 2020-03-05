@@ -54,16 +54,12 @@ let idCacheKey,
 export default class {
     constructor(config) {
         initialId = generateId();
-        idCacheKey = `${config.prefix}CId`;
-        sesCookieKey = `${config.prefix}SId`;
+        idCacheKey = `${config.pf}CId`;
+        sesCookieKey = `${config.pf}SId`;
         this.deviceId = initDeviceId();
         this.rootId = initialId;
         this.isNewId = isNewId;
-        if (config.session && config.session.enable) {
-            this.sessionId = setSessionId(config.session);
-        } else {
-            this.sessionId = '';
-        }
+        this.sessionId = config.so && config.so.enable ? setSessionId(config.so) : '';
     }
 
     setDeviceId(deviceId) {

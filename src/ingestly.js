@@ -36,16 +36,16 @@ export default class Ingestly {
         config = configObj;
         utils = new Utils();
         idm = new IDM({
-            prefix: config.prefix,
-            session: config.options.session,
+            pf: config.prefix,
+            so: config.options.session,
         });
         emitter = new Emitter({
-            endpoint: config.endpoint,
-            apiKey: config.apiKey,
-            sdkVersion: sdkVersion,
-            deviceId: idm.deviceId,
-            sessionId: idm.sessionId,
-            rootId: idm.rootId,
+            ep: config.endpoint,
+            ak: config.apiKey,
+            sv: sdkVersion,
+            di: idm.deviceId,
+            si: idm.sessionId,
+            ri: idm.rootId,
         });
         targetWindow = config.targetWindow || 'self';
         parsedUrl = utils.parseUrl(window[targetWindow].document.location.href);
@@ -75,8 +75,9 @@ export default class Ingestly {
 
         if (typeof events === 'undefined') {
             events = new Events({
-                eventName: config.eventName,
-                eventFrequency: config.eventFrequency,
+                en: config.eventName,
+                ef: config.eventFrequency,
+                tw: targetWindow,
             });
         }
 
@@ -289,7 +290,7 @@ export default class Ingestly {
             prevVals = [];
         events.removeListener(eventHandlerKeys['read']);
         eventHandlerKeys['read'] = events.addListener(
-            window[targetWindow],
+            window,
             config.eventName,
             () => {
                 for (let i = 0; i < this.trackReadTargets.length; i++) {

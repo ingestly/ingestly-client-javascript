@@ -7,28 +7,28 @@ let managedEvents = {},
 export default class {
     constructor(config) {
         let event, timer;
-        if (config.eventName && config.eventFrequency > 0) {
+        if (config.en && config.ef > 0) {
             try {
-                event = new CustomEvent(config.eventName);
+                event = new CustomEvent(config.en);
             } catch (e) {
-                event = window.top.document.createEvent('CustomEvent');
-                event.initCustomEvent(config.eventName, false, false, {});
+                event = window[config.tw].document.createEvent('CustomEvent');
+                event.initCustomEvent(config.en, false, false, {});
             }
 
-            window.top.requestAnimationFrame =
-                window.top.requestAnimationFrame ||
-                window.top.mozRequestAnimationFrame ||
-                window.top.webkitRequestAnimationFrame;
+            window[config.tw].requestAnimationFrame =
+                window[config.tw].requestAnimationFrame ||
+                window[config.tw].mozRequestAnimationFrame ||
+                window[config.tw].webkitRequestAnimationFrame;
 
             (function recurringEvent() {
-                window.top.requestAnimationFrame(recurringEvent);
+                window[config.tw].requestAnimationFrame(recurringEvent);
                 if (timer) {
                     return false;
                 }
                 timer = setTimeout(() => {
-                    window.top.dispatchEvent(event);
+                    window[config.tw].dispatchEvent(event);
                     timer = null;
-                }, config.eventFrequency);
+                }, config.ef);
             })();
         }
     }

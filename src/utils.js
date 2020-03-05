@@ -6,10 +6,11 @@ export default class {
         if ('navigation' in window[targetWindow].performance && 'timing' in window[targetWindow].performance) {
             const timing = window[targetWindow].performance.timing,
                 nav = window[targetWindow].performance.navigation,
-                tti = timing.domInteractive - timing.domLoading,
-                dcl = timing.domContentLoadedEventStart - timing.domLoading,
-                complete = timing.domComplete - timing.domLoading,
-                elapsedMs = +new Date() - timing.domLoading;
+                dl = timing.domLoading,
+                tti = timing.domInteractive - dl,
+                dcl = timing.domContentLoadedEventStart - dl,
+                complete = timing.domComplete - dl,
+                elapsedMs = +new Date() - dl;
             return {
                 ptTti: tti >= 0 ? tti : undefined,
                 ptDcl: dcl >= 0 ? dcl : undefined,
