@@ -10,12 +10,12 @@ const generateId = () => {
 
 const readCookie = key => {
     const cookies = window.document.cookie || '';
-    return (`; ${cookies};`.match(`; ${key}=([^¥S;]*)`) || [])[1];
+    return (`; ${cookies};`.match(`; ${key}=([^\\S;]*)`) || [])[1];
 };
 
 const initDeviceId = () => {
-    const idCookie = readCookie(storageKey) || '',
-        idStorage = localStorage.getItem(storageKey) || '';
+    const idCookie = readCookie(idCacheKey) || '',
+        idStorage = localStorage.getItem(idCacheKey) || '';
     let deviceId;
 
     if (idCookie.length > 8) {
@@ -29,19 +29,21 @@ const initDeviceId = () => {
     return deviceId;
 };
 
-const initSessionId = () => {
+const setSessionId = (sessionOption = {}) => {
     const sesCookie = readCookie(sesCookieKey) || '';
+    const domain = sessionOption.domain ? ` Domain=${sessionOption.domain};` : '';
+    const lifetime = sessionOption.lifetime ? ` Max-Age=${sessionOption.lifetime};` : '';
     let sessionId;
     if (sesCookie.length > 8) {
         sessionId = sesCookie;
     } else {
         sessionId = initialId;
-        window.document.cookie = `${sesCookieKey}=${sessionId}; Path=/;`;
+        window.document.cookie = `${sesCookieKey}=${sessionId};Path=/;${domain}${lifetime}`;
     }
     return sessionId;
 };
 
-let storageKey,
+let idCacheKey,
     sesCookieKey,
     initialId,
     isNewId = false;
@@ -52,20 +54,24 @@ let storageKey,
 export default class {
     constructor(config) {
         initialId = generateId();
-        storageKey = `${config.prefix}-id`;
-        sesCookieKey = `${config.prefix}-ses`;
+        idCacheKey = `${config.prefix}CId`;
+        sesCookieKey = `${config.prefix}SId`;
         this.deviceId = initDeviceId();
         this.rootId = initialId;
-        this.sessionId = initSessionId();
         this.isNewId = isNewId;
+        if (config.session && config.session.enable) {
+            this.sessionId = setSessionId(config.session);
+        } else {
+            this.sessionId = '';
+        }
     }
 
     setDeviceId(deviceId) {
         this.deviceId = deviceId;
         try {
-            localStorage.setItem(storageKey, deviceId);
+            localStorage.setItem(idCacheKey, deviceId);
         } catch (e) {
-            window.document.cookie = `${storageKey}=${deviceId}; Path=/; Max-Age=31536000;`;
+            window.document.cookie = `${idCacheKey}=${deviceId}; Path=/; Max-Age=31536000;`;
         }
     }
 }
