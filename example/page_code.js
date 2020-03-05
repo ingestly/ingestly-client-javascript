@@ -11,6 +11,11 @@
             prefix: 'ingestly',
             targetWindow: 'self',
             options: {
+                session: {
+                    enable: true,
+                    domain: 'example.com',
+                    lifetime: 1800
+                },
                 rum: {
                     enable: true
                 },
@@ -31,7 +36,7 @@
                     enable: true,
                     threshold: 2,
                     granularity: 20,
-                    targets: [].slice.call(window.document.getElementsByTagName('article'))
+                    targets: window.document.getElementsByTagName('article')
                 },
                 media: {
                     enable: true,
@@ -39,7 +44,7 @@
                 },
                 form: {
                     enable: true,
-                    targets: [].slice.call(window.document.getElementsByTagName('form'))
+                    targets: window.document.getElementsByTagName('form')
                 }
             }
         });
