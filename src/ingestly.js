@@ -26,7 +26,6 @@ export default class Ingestly {
         this.dataModel = {};
         this.trackReadTargets = [];
         this.trackFormTargets = [];
-        this.utils = Utils.prototype;
     }
 
     /**
@@ -38,7 +37,7 @@ export default class Ingestly {
         utils = new Utils();
         idm = new IDM({
             prefix: config.prefix,
-            target: config.targetWindow,
+            session: config.options.session,
         });
         emitter = new Emitter({
             endpoint: config.endpoint,
@@ -47,9 +46,8 @@ export default class Ingestly {
             deviceId: idm.deviceId,
             sessionId: idm.sessionId,
             rootId: idm.rootId,
-            target: config.targetWindow,
         });
-        targetWindow = config.targetWindow;
+        targetWindow = config.targetWindow || 'self';
         parsedUrl = utils.parseUrl(window[targetWindow].document.location.href);
         parsedReferrer = utils.parseUrl(window[targetWindow].document.referrer);
         if ('onbeforeunload' in window[targetWindow]) {
@@ -82,41 +80,43 @@ export default class Ingestly {
             });
         }
 
-        if (config.options && config.options.rum && config.options.rum.enable) {
-            if (
-                window[targetWindow].document.readyState === 'interactive' ||
-                window[targetWindow].document.readyState === 'complete'
-            ) {
-                this.trackAction('rum', 'page', {});
-            } else {
-                this.trackPerformance();
+        if (config.options) {
+            if (config.options.rum && config.options.rum.enable) {
+                if (
+                    window[targetWindow].document.readyState === 'interactive' ||
+                    window[targetWindow].document.readyState === 'complete'
+                ) {
+                    this.trackAction('rum', 'page', {});
+                } else {
+                    this.trackPerformance();
+                }
             }
-        }
 
-        if (config.options && config.options.unload && config.options.unload.enable) {
-            this.trackUnload(targetWindow);
-        }
+            if (config.options.unload && config.options.unload.enable) {
+                this.trackUnload(targetWindow);
+            }
 
-        if (config.options && config.options.scroll && config.options.scroll.enable) {
-            this.trackScroll();
-        }
+            if (config.options.scroll && config.options.scroll.enable) {
+                this.trackScroll();
+            }
 
-        if (config.options && config.options.read && config.options.read.enable) {
-            this.trackReadTargets = [].slice.call(config.options.read.targets);
-            this.trackRead();
-        }
+            if (config.options.read && config.options.read.enable) {
+                this.trackReadTargets = [].slice.call(config.options.read.targets);
+                this.trackRead();
+            }
 
-        if (config.options && config.options.clicks && config.options.clicks.enable) {
-            this.trackClicks();
-        }
+            if (config.options.clicks && config.options.clicks.enable) {
+                this.trackClicks();
+            }
 
-        if (config.options && config.options.media && config.options.media.enable) {
-            this.trackMedia();
-        }
+            if (config.options.media && config.options.media.enable) {
+                this.trackMedia();
+            }
 
-        if (config.options && config.options.form && config.options.form.enable) {
-            this.trackFormTargets = [].slice.call(config.options.form.targets);
-            this.trackForm();
+            if (config.options.form && config.options.form.enable) {
+                this.trackFormTargets = [].slice.call(config.options.form.targets);
+                this.trackForm();
+            }
         }
     }
 
@@ -205,7 +205,8 @@ export default class Ingestly {
                 const trackableElement = utils.queryMatch(
                     'a, button, input, [role="button"]',
                     clickEvent.target,
-                    targetAttribute
+                    targetAttribute,
+                    targetWindow
                 );
                 let element = null;
                 if (trackableElement) {
