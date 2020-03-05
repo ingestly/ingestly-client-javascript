@@ -290,7 +290,7 @@ export default class Ingestly {
             prevVals = [];
         events.removeListener(eventHandlerKeys['read']);
         eventHandlerKeys['read'] = events.addListener(
-            window,
+            window[targetWindow],
             config.eventName,
             () => {
                 for (let i = 0; i < this.trackReadTargets.length; i++) {
