@@ -67,15 +67,12 @@ export default class {
                 status = false;
             }
             if (!status) {
-                if (
-                    typeof window[config.target].fetch === 'function' &&
-                    typeof window[config.target].AbortController === 'function'
-                ) {
+                if (typeof window.fetch === 'function' && typeof window.AbortController === 'function') {
                     const controller = new AbortController();
                     const signal = controller.signal;
                     const option = { signal, method: 'POST', cache: 'no-store', keepalive: true };
                     setTimeout(() => controller.abort(), 4000);
-                    window[config.target].fetch(url, option);
+                    window.fetch(url, option);
                 } else {
                     xhr(url);
                 }
@@ -87,15 +84,12 @@ export default class {
 
     sync(payload, callback) {
         let url = generateDestination('ingestly-sync', payload, config.deviceId, config.sessionId, config.rootId);
-        if (
-            typeof window[config.target].fetch === 'function' &&
-            typeof window[config.target].AbortController === 'function'
-        ) {
+        if (typeof window.fetch === 'function' && typeof window.AbortController === 'function') {
             const controller = new AbortController();
             const signal = controller.signal;
             const option = { signal, method: 'GET', cache: 'no-store', keepalive: true };
             setTimeout(() => controller.abort(), 4000);
-            window[config.target]
+            window
                 .fetch(url, option)
                 .then(response => {
                     return response.json();

@@ -220,14 +220,14 @@ export default class {
         };
     }
 
-    queryMatch(selector, target, targetFlag = false) {
+    queryMatch(selector, target, targetFlag = false, targetWindow) {
         let element,
             category = 'button',
             p = [];
         if (target.nodeType === 3) {
             target = target.parentNode;
         }
-        while (target && target !== window.top.document) {
+        while (target && target !== window[targetWindow].document) {
             let matches = (
                 target.matches ||
                 target.msMatchesSelector ||
