@@ -70,6 +70,16 @@ Note: If you remove `eventName` and/or `eventFrequency`, or set `0` for `eventFr
 
 You can enable optional tracking features.
 
+### Session ID support
+
+- Not a few web analyst still uses "Session" based behavior aggregation, and it requires an SQL skills if records don't have a session ID.
+- This SDK can set a session ID and collect it by setting `true` to `options.session.enable`, and you can use additional options below:
+
+|variable|example|description|
+|:---|:---|:---|
+|domain|`example.com`|A domain name to be set as an issuer of the cookie. If you want to share the cookie across multiple sub-domains, set a parent domain.|
+|lifetime|`1800`|A cookie lifetime in seconds. If the visitor does not send beacons over this value, session will be renewd on the next page.|
+
 ### Real User Monitoring
 
 - You can measure the Real User Monitoring data which is the performance information based on timeline of page loading on each client.

@@ -3,7 +3,7 @@ import Events from './events';
 import IDM from './idm';
 import Utils from './utils';
 
-const sdkVersion = '0.6.5',
+const sdkVersion = '0.6.6',
     initTimestamp = +new Date();
 
 let config,
@@ -26,7 +26,6 @@ export default class Ingestly {
         this.dataModel = {};
         this.trackReadTargets = [];
         this.trackFormTargets = [];
-        this.utils = Utils.prototype;
     }
 
     /**
@@ -37,19 +36,18 @@ export default class Ingestly {
         config = configObj;
         utils = new Utils();
         idm = new IDM({
-            prefix: config.prefix,
-            target: config.targetWindow,
+            pf: config.prefix,
+            so: config.options.session,
         });
         emitter = new Emitter({
-            endpoint: config.endpoint,
-            apiKey: config.apiKey,
-            sdkVersion: sdkVersion,
-            deviceId: idm.deviceId,
-            sessionId: idm.sessionId,
-            rootId: idm.rootId,
-            target: config.targetWindow,
+            ep: config.endpoint,
+            ak: config.apiKey,
+            sv: sdkVersion,
+            di: idm.deviceId,
+            si: idm.sessionId,
+            ri: idm.rootId,
         });
-        targetWindow = config.targetWindow;
+        targetWindow = config.targetWindow || 'self';
         parsedUrl = utils.parseUrl(window[targetWindow].document.location.href);
         parsedReferrer = utils.parseUrl(window[targetWindow].document.referrer);
         if ('onbeforeunload' in window[targetWindow]) {
@@ -77,46 +75,49 @@ export default class Ingestly {
 
         if (typeof events === 'undefined') {
             events = new Events({
-                eventName: config.eventName,
-                eventFrequency: config.eventFrequency,
+                en: config.eventName,
+                ef: config.eventFrequency,
+                tw: targetWindow,
             });
         }
 
-        if (config.options && config.options.rum && config.options.rum.enable) {
-            if (
-                window[targetWindow].document.readyState === 'interactive' ||
-                window[targetWindow].document.readyState === 'complete'
-            ) {
-                this.trackAction('rum', 'page', {});
-            } else {
-                this.trackPerformance();
+        if (config.options) {
+            if (config.options.rum && config.options.rum.enable) {
+                if (
+                    window[targetWindow].document.readyState === 'interactive' ||
+                    window[targetWindow].document.readyState === 'complete'
+                ) {
+                    this.trackAction('rum', 'page', {});
+                } else {
+                    this.trackPerformance();
+                }
             }
-        }
 
-        if (config.options && config.options.unload && config.options.unload.enable) {
-            this.trackUnload(targetWindow);
-        }
+            if (config.options.unload && config.options.unload.enable) {
+                this.trackUnload();
+            }
 
-        if (config.options && config.options.scroll && config.options.scroll.enable) {
-            this.trackScroll();
-        }
+            if (config.options.scroll && config.options.scroll.enable) {
+                this.trackScroll();
+            }
 
-        if (config.options && config.options.read && config.options.read.enable) {
-            this.trackReadTargets = [].slice.call(config.options.read.targets);
-            this.trackRead();
-        }
+            if (config.options.read && config.options.read.enable) {
+                this.trackReadTargets = [].slice.call(config.options.read.targets);
+                this.trackRead();
+            }
 
-        if (config.options && config.options.clicks && config.options.clicks.enable) {
-            this.trackClicks();
-        }
+            if (config.options.clicks && config.options.clicks.enable) {
+                this.trackClicks();
+            }
 
-        if (config.options && config.options.media && config.options.media.enable) {
-            this.trackMedia();
-        }
+            if (config.options.media && config.options.media.enable) {
+                this.trackMedia();
+            }
 
-        if (config.options && config.options.form && config.options.form.enable) {
-            this.trackFormTargets = [].slice.call(config.options.form.targets);
-            this.trackForm();
+            if (config.options.form && config.options.form.enable) {
+                this.trackFormTargets = [].slice.call(config.options.form.targets);
+                this.trackForm();
+            }
         }
     }
 
@@ -205,7 +206,8 @@ export default class Ingestly {
                 const trackableElement = utils.queryMatch(
                     'a, button, input, [role="button"]',
                     clickEvent.target,
-                    targetAttribute
+                    targetAttribute,
+                    targetWindow
                 );
                 let element = null;
                 if (trackableElement) {

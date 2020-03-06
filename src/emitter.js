@@ -22,9 +22,9 @@ const xhr = (url, callback) => {
 
 const generateDestination = (feature, payload, deviceId, sessionId, rootId) => {
     const timestamp = (+new Date()).toString(36);
-    let url = `https://${config.endpoint}/${feature}/${timestamp}/`;
-    url += `?key=${config.apiKey}`;
-    url += `&sdk=JS-${config.sdkVersion}`;
+    let url = `https://${config.ep}/${feature}/${timestamp}/`;
+    url += `?key=${config.ak}`;
+    url += `&sdk=JS-${config.sv}`;
     url += `&ingestlyId=${deviceId}`;
     url += `&sesId=${sessionId}`;
     url += `&rootId=${rootId}`;
@@ -59,7 +59,7 @@ export default class {
     }
 
     emit(payload) {
-        let url = generateDestination('ingestly-ingest', payload, config.deviceId, config.sessionId, config.rootId);
+        let url = generateDestination('ingestly-ingest', payload, config.di, config.si, config.ri);
         if ('sendBeacon' in navigator && typeof navigator.sendBeacon === 'function' && status === true) {
             try {
                 status = navigator.sendBeacon(url);
@@ -67,15 +67,12 @@ export default class {
                 status = false;
             }
             if (!status) {
-                if (
-                    typeof window[config.target].fetch === 'function' &&
-                    typeof window[config.target].AbortController === 'function'
-                ) {
+                if (typeof window.fetch === 'function' && typeof window.AbortController === 'function') {
                     const controller = new AbortController();
                     const signal = controller.signal;
                     const option = { signal, method: 'POST', cache: 'no-store', keepalive: true };
                     setTimeout(() => controller.abort(), 4000);
-                    window[config.target].fetch(url, option);
+                    window.fetch(url, option);
                 } else {
                     xhr(url);
                 }
@@ -86,16 +83,13 @@ export default class {
     }
 
     sync(payload, callback) {
-        let url = generateDestination('ingestly-sync', payload, config.deviceId, config.sessionId, config.rootId);
-        if (
-            typeof window[config.target].fetch === 'function' &&
-            typeof window[config.target].AbortController === 'function'
-        ) {
+        let url = generateDestination('ingestly-sync', payload, config.di, config.si, config.ri);
+        if (typeof window.fetch === 'function' && typeof window.AbortController === 'function') {
             const controller = new AbortController();
             const signal = controller.signal;
             const option = { signal, method: 'GET', cache: 'no-store', keepalive: true };
             setTimeout(() => controller.abort(), 4000);
-            window[config.target]
+            window
                 .fetch(url, option)
                 .then(response => {
                     return response.json();

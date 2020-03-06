@@ -1,6 +1,6 @@
 {
   "name": "ingestly-client-javascript",
-  "version": "0.6.5",
+  "version": "0.6.6",
   "description": "Ingestly Client JavaScript SDK for modern web analytics.",
   "main": "dist/ingestly.js",
   "scripts": {
@@ -23,15 +23,15 @@
   "homepage": "https://github.com/ingestly/ingestly-client-javascript#readme",
   "dependencies": {},
   "devDependencies": {
-    "@babel/core": "^7.8.6",
+    "@babel/core": "^7.8.7",
     "@babel/plugin-proposal-decorators": "^7.8.3",
-    "@babel/preset-env": "^7.8.6",
+    "@babel/preset-env": "^7.8.7",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.0.6",
     "eslint": "^5.16.0",
     "jsdoc": "^3.6.3",
     "prettier": "^1.19.1",
-    "webpack": "^4.41.6",
+    "webpack": "^4.42.0",
     "webpack-cli": "^3.3.11"
   }
 }
