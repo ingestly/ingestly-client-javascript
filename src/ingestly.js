@@ -94,7 +94,7 @@ export default class Ingestly {
             }
 
             if (config.options.unload && config.options.unload.enable) {
-                this.trackUnload(targetWindow);
+                this.trackUnload();
             }
 
             if (config.options.scroll && config.options.scroll.enable) {
