@@ -31,15 +31,10 @@ const initDeviceId = () => {
 
 const setSessionId = (sessionOption = {}) => {
     const sesCookie = readCookie(sesCookieKey) || '';
+    const sessionId = sesCookie.length > 8 ? sesCookie : initialId;
     const domain = sessionOption.domain ? ` Domain=${sessionOption.domain};` : '';
     const lifetime = sessionOption.lifetime ? ` Max-Age=${sessionOption.lifetime};` : '';
-    let sessionId;
-    if (sesCookie.length > 8) {
-        sessionId = sesCookie;
-    } else {
-        sessionId = initialId;
-        window.document.cookie = `${sesCookieKey}=${sessionId};Path=/;${domain}${lifetime}`;
-    }
+    window.document.cookie = `${sesCookieKey}=${sessionId};Path=/;${domain}${lifetime}`;
     return sessionId;
 };
 
