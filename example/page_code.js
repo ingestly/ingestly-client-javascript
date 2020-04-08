@@ -10,6 +10,7 @@
             eventFrequency: 250,
             prefix: 'ingestly',
             targetWindow: 'self',
+            useCookie: true,
             options: {
                 rum: {
                     enable: true

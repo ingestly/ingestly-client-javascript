@@ -14,7 +14,7 @@ let config,
     parsedReferrer,
     unloadEvent,
     eventHandlerKeys = { media: [], form: [] },
-    prevTimestamp = +new Date();
+    prevTimestamp = initTimestamp;
 
 /**
  * @ignore
@@ -36,6 +36,7 @@ export default class Ingestly {
         emitter = new Emitter({
             ep: config.endpoint,
             ak: config.apiKey,
+            ck: config.useCookie,
             sv: sdkVersion,
         });
         targetWindow = config.targetWindow || 'self';
@@ -113,6 +114,15 @@ export default class Ingestly {
     }
 
     /**
+     * Consent Management
+     * @param  {Boolean} true = opt-in, false = opt-out
+     * @param  {Object} Acceptance status of purposes for data utilization.
+     */
+    setConsent(useCookie, purposes) {
+        emitter.consentManagement(useCookie, purposes);
+    }
+
+    /**
      * Track an event with additional data.
      * @param  {String} action Action name.
      * @param  {String} category Category name.
@@ -134,7 +144,7 @@ export default class Ingestly {
             'performance' in window[targetWindow] ? utils.getPerformanceInfo(targetWindow) : {},
         ]);
         prevTimestamp = now;
-        emitter.emit(payload);
+        emitter.ingest(payload);
     }
 
     /**

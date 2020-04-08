@@ -31,8 +31,10 @@ const xhr = (url, callback) => {
 };
 
 const generateDestination = (feature, payload) => {
+    const useCookie = config.ck === true ? 1 : 0;
     let url = `https://${config.ep}/${feature}/${(+new Date()).toString(36)}/`;
     url += `?key=${config.ak}`;
+    url += `&cookie=${useCookie}`;
     url += `&sdk=JS-${config.sv}`;
     url += `&rootId=${generateId()}`;
 
@@ -65,8 +67,7 @@ export default class {
         config = obj;
     }
 
-    emit(payload) {
-        let url = generateDestination('ingestly-ingest', payload);
+    emit(url) {
         if ('sendBeacon' in navigator && typeof navigator.sendBeacon === 'function' && status === true) {
             try {
                 status = navigator.sendBeacon(url);
@@ -87,5 +88,18 @@ export default class {
         } else {
             xhr(url);
         }
+    }
+
+    consentManagement(useCookie, purposes) {
+        let url = generateDestination('consent', {
+            i: useCookie === true ? 1 : 0,
+            p: JSON.stringify(purposes),
+        });
+        this.emit(url);
+    }
+
+    ingest(payload) {
+        let url = generateDestination('ingest', payload);
+        this.emit(url);
     }
 }
