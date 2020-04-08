@@ -2,7 +2,7 @@ import Emitter from './emitter';
 import Events from './events';
 import Utils from './utils';
 
-const sdkVersion = '0.6.6',
+const sdkVersion = '1.0.0b',
     initTimestamp = +new Date();
 
 let config,
@@ -119,7 +119,7 @@ export default class Ingestly {
      * @param  {Object} Acceptance status of purposes for data utilization.
      */
     setConsent(useCookie, purposes) {
-        emitter.consentManagement(useCookie, purposes);
+        emitter.consent(useCookie, purposes);
     }
 
     /**

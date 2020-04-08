@@ -8,7 +8,6 @@
             apiKey: '2ee204330a7b2701a6bf413473fcc486',
             eventName: 'ingestlyRecurringEvent',
             eventFrequency: 250,
-            prefix: 'ingestly',
             targetWindow: 'self',
             useCookie: true,
             options: {

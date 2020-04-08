@@ -36,7 +36,7 @@ const generateDestination = (feature, payload) => {
     url += `?key=${config.ak}`;
     url += `&cookie=${useCookie}`;
     url += `&sdk=JS-${config.sv}`;
-    url += `&rootId=${generateId()}`;
+    url += `&rootId=${rootId}`;
 
     for (let key in payload) {
         url += generateParamPair(key, payload[key]);
@@ -57,6 +57,7 @@ const generateParamPair = (key, val) => {
 };
 
 let config,
+    rootId,
     status = true;
 
 /**
@@ -65,6 +66,7 @@ let config,
 export default class {
     constructor(obj) {
         config = obj;
+        rootId = generateId();
     }
 
     emit(url) {
@@ -90,7 +92,7 @@ export default class {
         }
     }
 
-    consentManagement(useCookie, purposes) {
+    consent(useCookie, purposes) {
         let url = generateDestination('consent', {
             i: useCookie === true ? 1 : 0,
             p: JSON.stringify(purposes),
