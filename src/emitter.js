@@ -20,13 +20,12 @@ const xhr = (url, callback) => {
     return true;
 };
 
-const generateDestination = (feature, payload, deviceId, sessionId, rootId) => {
+const generateDestination = (feature, payload, deviceId, rootId) => {
     const timestamp = (+new Date()).toString(36);
     let url = `https://${config.ep}/${feature}/${timestamp}/`;
     url += `?key=${config.ak}`;
     url += `&sdk=JS-${config.sv}`;
     url += `&ingestlyId=${deviceId}`;
-    url += `&sesId=${sessionId}`;
     url += `&rootId=${rootId}`;
 
     for (let key in payload) {
@@ -59,7 +58,7 @@ export default class {
     }
 
     emit(payload) {
-        let url = generateDestination('ingestly-ingest', payload, config.di, config.si, config.ri);
+        let url = generateDestination('ingestly-ingest', payload, config.di, config.ri);
         if ('sendBeacon' in navigator && typeof navigator.sendBeacon === 'function' && status === true) {
             try {
                 status = navigator.sendBeacon(url);
@@ -83,7 +82,7 @@ export default class {
     }
 
     sync(payload, callback) {
-        let url = generateDestination('ingestly-sync', payload, config.di, config.si, config.ri);
+        let url = generateDestination('ingestly-sync', payload, config.di, config.ri);
         if (typeof window.fetch === 'function' && typeof window.AbortController === 'function') {
             const controller = new AbortController();
             const signal = controller.signal;

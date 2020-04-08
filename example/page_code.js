@@ -11,11 +11,6 @@
             prefix: 'ingestly',
             targetWindow: 'self',
             options: {
-                session: {
-                    enable: true,
-                    domain: 'example.com',
-                    lifetime: 1800
-                },
                 rum: {
                     enable: true
                 },

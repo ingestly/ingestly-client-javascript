@@ -37,14 +37,12 @@ export default class Ingestly {
         utils = new Utils();
         idm = new IDM({
             pf: config.prefix,
-            so: config.options.session,
         });
         emitter = new Emitter({
             ep: config.endpoint,
             ak: config.apiKey,
             sv: sdkVersion,
             di: idm.deviceId,
-            si: idm.sessionId,
             ri: idm.rootId,
         });
         targetWindow = config.targetWindow || 'self';
