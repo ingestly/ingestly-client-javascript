@@ -313,4 +313,9 @@ export default class {
         }
         return result;
     }
+
+    readCookie(key) {
+        const cookies = window.document.cookie || '';
+        return (`; ${cookies};`.match(`; ${key}=([^\\S;]*)`) || [])[1];
+    }
 }

@@ -1,6 +1,5 @@
 import Emitter from './emitter';
 import Events from './events';
-import IDM from './idm';
 import Utils from './utils';
 
 const sdkVersion = '0.6.6',
@@ -8,7 +7,6 @@ const sdkVersion = '0.6.6',
 
 let config,
     targetWindow,
-    idm,
     emitter,
     events,
     utils,
@@ -35,15 +33,10 @@ export default class Ingestly {
     config(configObj) {
         config = configObj;
         utils = new Utils();
-        idm = new IDM({
-            pf: config.prefix,
-        });
         emitter = new Emitter({
             ep: config.endpoint,
             ak: config.apiKey,
             sv: sdkVersion,
-            di: idm.deviceId,
-            ri: idm.rootId,
         });
         targetWindow = config.targetWindow || 'self';
         parsedUrl = utils.parseUrl(window[targetWindow].document.location.href);
@@ -141,16 +134,7 @@ export default class Ingestly {
             'performance' in window[targetWindow] ? utils.getPerformanceInfo(targetWindow) : {},
         ]);
         prevTimestamp = now;
-
-        if (idm.isNewId) {
-            emitter.sync(payload, result => {
-                idm.setDeviceId(result);
-                idm.isNewId = false;
-            });
-        } else {
-            emitter.emit(payload);
-            idm.setDeviceId(idm.deviceId);
-        }
+        emitter.emit(payload);
     }
 
     /**

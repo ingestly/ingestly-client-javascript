@@ -1,3 +1,13 @@
+const generateId = () => {
+    const timestamp = (+new Date()).toString(36);
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 16; i++) {
+        result += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return `${timestamp}-${result}`;
+};
+
 const xhr = (url, callback) => {
     let xhr = new XMLHttpRequest();
     if (typeof callback === 'function') {
@@ -20,13 +30,11 @@ const xhr = (url, callback) => {
     return true;
 };
 
-const generateDestination = (feature, payload, deviceId, rootId) => {
-    const timestamp = (+new Date()).toString(36);
-    let url = `https://${config.ep}/${feature}/${timestamp}/`;
+const generateDestination = (feature, payload) => {
+    let url = `https://${config.ep}/${feature}/${(+new Date()).toString(36)}/`;
     url += `?key=${config.ak}`;
     url += `&sdk=JS-${config.sv}`;
-    url += `&ingestlyId=${deviceId}`;
-    url += `&rootId=${rootId}`;
+    url += `&rootId=${generateId()}`;
 
     for (let key in payload) {
         url += generateParamPair(key, payload[key]);
@@ -58,7 +66,7 @@ export default class {
     }
 
     emit(payload) {
-        let url = generateDestination('ingestly-ingest', payload, config.di, config.ri);
+        let url = generateDestination('ingestly-ingest', payload);
         if ('sendBeacon' in navigator && typeof navigator.sendBeacon === 'function' && status === true) {
             try {
                 status = navigator.sendBeacon(url);
@@ -78,28 +86,6 @@ export default class {
             }
         } else {
             xhr(url);
-        }
-    }
-
-    sync(payload, callback) {
-        let url = generateDestination('ingestly-sync', payload, config.di, config.ri);
-        if (typeof window.fetch === 'function' && typeof window.AbortController === 'function') {
-            const controller = new AbortController();
-            const signal = controller.signal;
-            const option = { signal, method: 'GET', cache: 'no-store', keepalive: true };
-            setTimeout(() => controller.abort(), 4000);
-            window
-                .fetch(url, option)
-                .then(response => {
-                    return response.json();
-                })
-                .then(result => {
-                    callback.call(null, result.id);
-                });
-        } else {
-            xhr(url, result => {
-                callback.call(null, result.id);
-            });
         }
     }
 }
