@@ -150,6 +150,7 @@ export default class Ingestly {
             category: category,
             sinceInitMs: now - initTimestamp,
             sincePrevMs: now - prevTimestamp,
+            consent: consent
         };
         let payload = utils.mergeObj([
             this.dataModel,
@@ -160,11 +161,11 @@ export default class Ingestly {
         ]);
 
         if (Number(consent['identification']) === 1) {
-            payload['ck'] = 1;
+            payload['ck'] = true;
         } else if (Number(consent['identification']) === 0) {
-            payload['ck'] = 0;
+            payload['ck'] = false;
         } else {
-            payload['ck'] = config.useCookie ? 1 : 0;
+            payload['ck'] = config.useCookie ? true : false;
         }
 
         prevTimestamp = now;
