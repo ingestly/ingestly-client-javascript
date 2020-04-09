@@ -25,7 +25,7 @@ Ingestlyは、Fastlyを活用してフロントエンドからGoogle BigQueryへ
 - [Ingestly Endpoint](https://github.com/ingestly/ingestly-endpoint) が動いている必要があります
 - ビルド済みSDKを使う場合、 [GitHub Releases](https://github.com/ingestly/ingestly-client-javascript/releases) ページで配布しているファイルを利用できます
 - SDKをビルドしたい場合、node.jsが必要です
-- SDKはサブドメインレベルの固有のIDを保存するため、 localStorage と Cookie で 1つずつキーを利用します
+- エンドポイントが、指定したドメイン下に `ingestlyId` 、 `ingestlySes` そして `ingestlyConsent` という名前のCookieを発行します。
 
 ### SDKのビルド
 
@@ -50,8 +50,8 @@ npm run build
     - `apiKey` : エンドポイント用のAPIキー。IngestlyのFastly用Custom VCLの中で `true` としてリストされている必要があります
     - `eventName` : SDKはrequestAnimationFrameのタイミングに基づいて再帰的にイベントを発生させます。ここで発生させるイベント名を指定できます
     - `eventFrequency` : 再帰的イベントはここでミリ秒で指定した間隔でスロットリングされます。SDKの検知精度を上げる場合は小さい値にします
-    - `prefix` : localStorage と Cookie で使うキー名の定義に用いられます
-    - `targetWindow` : ターゲットとするウィンドウのプロパティ名。 `self`、 `parent` または `top` が利用可能です
+    - `targetWindow` : ターゲットとするウィンドウのプロパティ名。 `self`、 `parent` または `top` 
+    - `useCookie` : 初期状態でCookieを用いたデバイス識別を行う場合は `true` を、行わない場合 `false`
 3. ファイルを保存します
 
 メモ： `eventName` と `eventFrequency` の一方またはいずれかを削除するか、 `eventFrequency` に `0` を指定すると、再帰イベントは無効は無効化されます。

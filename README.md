@@ -25,7 +25,7 @@ Also, Ingestly can be implemented seamlessly into your existing web site with in
 - If you want to use the pre-build SDK, you can use files piblished in [GitHub Releases](https://github.com/ingestly/ingestly-client-javascript/releases).
 
 - If you wish to build the SDK by yourself, node.js is required.
-- The SDK uses a localStorage key and a Cookie for storing sub-domain specific ID.
+- This endpoint may use cookies named `ingestlyId`, `ingestlySes` and `ingestlyConsent` under your specified domain name.
 
 ### Build the SDK
 
@@ -50,8 +50,8 @@ npm run build
     - `apiKey` : an API key for the endpoint. This value must be listed as `true` in Fastly's Custom VCL for Ingestly.
     - `eventName` : the SDK dispatches a recurring event based on a timing of requestAnimationFrame. You can specify a name of this event.
     - `eventFrequency` : the recurring event is throttled by this interval in millisecond. Set a small number if you want to make the SDK sensitive.
-    - `prefix` : used for defining a key name of localStorage and Cookie.
     - `targetWindow` : a property name of target window. you can use `self`, `parent` or `top`. 
+    - `useCookie` : a default mode of device identification by Cookie. Set `true` to enable, set `false` to disable.
 3. Save the file.
 
 Note: If you remove `eventName` and/or `eventFrequency`, or set `0` for `eventFrequency`, the recurring event will be disabled.
