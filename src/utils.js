@@ -316,6 +316,6 @@ export default class {
 
     readCookie(key) {
         const cookies = window.document.cookie || '';
-        return (`; ${cookies};`.match(`; ${key}=([^\\S;]*)`) || [])[1];
+        return (`; ${cookies};`.match(`; ${key}=([^\S;]*)`) || [])[1];
     }
 }

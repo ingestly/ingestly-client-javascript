@@ -7,6 +7,7 @@ const sdkVersion = '1.0.0b',
 
 let config,
     targetWindow,
+    consent,
     emitter,
     events,
     utils,
@@ -33,12 +34,7 @@ export default class Ingestly {
     config(configObj) {
         config = configObj;
         utils = new Utils();
-        emitter = new Emitter({
-            ep: config.endpoint,
-            ak: config.apiKey,
-            ck: config.useCookie,
-            sv: sdkVersion,
-        });
+        emitter = new Emitter(config.endpoint);
         targetWindow = config.targetWindow || 'self';
         parsedUrl = utils.parseUrl(window[targetWindow].document.location.href);
         parsedReferrer = utils.parseUrl(window[targetWindow].document.referrer);
@@ -55,8 +51,17 @@ export default class Ingestly {
      * Initialize a page level variables.
      * @param  {Object} dataModel Data model.
      */
-    init(dataModel) {
+    init(dataModel = {}) {
         this.dataModel = dataModel;
+        this.dataModel['key'] = config.apiKey;
+        this.dataModel['sdk'] = `JS-${sdkVersion}`;
+
+        try {
+            consent = JSON.parse(decodeURIComponent(utils.readCookie('ingestlyConsent')));
+        } catch (e) {
+            consent = {};
+        }
+        console.log(consent);
 
         for (let key in parsedUrl) {
             this.dataModel[`ur${key}`] = parsedUrl[key];
@@ -115,11 +120,22 @@ export default class Ingestly {
 
     /**
      * Consent Management
-     * @param  {Boolean} true = opt-in, false = opt-out
-     * @param  {Object} Acceptance status of purposes for data utilization.
+     * @param  {Object} purposes consent status of purposes for data utilization.
      */
-    setConsent(useCookie, purposes) {
-        emitter.consent(useCookie, purposes);
+    setConsent(purposes = {}) {
+        let optOut = 0;
+        if (Number(purposes['identification']) === 0) {
+            optOut = 1;
+            consent['identification'] = 0;
+        } else {
+            consent['identification'] = 1;
+        }
+        consent['measurement'] = Number(purposes['measurement']) === 0 ? 0 : 1;
+        emitter.emit('consent', {
+            key: config.apiKey,
+            dc: optOut,
+            ap: encodeURIComponent(JSON.stringify(purposes)),
+        });
     }
 
     /**
@@ -136,15 +152,26 @@ export default class Ingestly {
             sinceInitMs: now - initTimestamp,
             sincePrevMs: now - prevTimestamp,
         };
-        const payload = utils.mergeObj([
+        let payload = utils.mergeObj([
             this.dataModel,
             mandatory,
             eventContext,
             utils.getClientInfo(targetWindow),
             'performance' in window[targetWindow] ? utils.getPerformanceInfo(targetWindow) : {},
         ]);
+
+        if (Number(consent['identification']) === 1) {
+            payload['ck'] = 1;
+        } else if (Number(consent['identification']) === 0) {
+            payload['ck'] = 0;
+        } else {
+            payload['ck'] = config.useCookie ? 1 : 0;
+        }
+
         prevTimestamp = now;
-        emitter.ingest(payload);
+        if (Number(consent['measurement']) !== 0) {
+            emitter.emit('ingest', payload);
+        }
     }
 
     /**

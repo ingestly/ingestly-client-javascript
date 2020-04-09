@@ -31,17 +31,11 @@ const xhr = (url, callback) => {
 };
 
 const generateDestination = (feature, payload) => {
-    const useCookie = config.ck === true ? 1 : 0;
-    let url = `https://${config.ep}/${feature}/${(+new Date()).toString(36)}/`;
-    url += `?key=${config.ak}`;
-    url += `&cookie=${useCookie}`;
-    url += `&sdk=JS-${config.sv}`;
-    url += `&rootId=${rootId}`;
-
+    let url = `https://${endpoint}/ingestly-${feature}/${(+new Date()).toString(36)}/`;
+    url += `?rootId=${rootId}`;
     for (let key in payload) {
         url += generateParamPair(key, payload[key]);
     }
-
     return url;
 };
 
@@ -56,7 +50,7 @@ const generateParamPair = (key, val) => {
     }
 };
 
-let config,
+let endpoint,
     rootId,
     status = true;
 
@@ -64,12 +58,13 @@ let config,
  * @ignore
  */
 export default class {
-    constructor(obj) {
-        config = obj;
+    constructor(ep) {
         rootId = generateId();
+        endpoint = ep;
     }
 
-    emit(url) {
+    emit(feature, payload) {
+        const url = generateDestination(feature, payload);
         if ('sendBeacon' in navigator && typeof navigator.sendBeacon === 'function' && status === true) {
             try {
                 status = navigator.sendBeacon(url);
@@ -90,18 +85,5 @@ export default class {
         } else {
             xhr(url);
         }
-    }
-
-    consent(useCookie, purposes) {
-        let url = generateDestination('consent', {
-            i: useCookie === true ? 1 : 0,
-            p: JSON.stringify(purposes),
-        });
-        this.emit(url);
-    }
-
-    ingest(payload) {
-        let url = generateDestination('ingest', payload);
-        this.emit(url);
     }
 }
