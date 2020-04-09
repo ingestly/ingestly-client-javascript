@@ -61,7 +61,6 @@ export default class Ingestly {
         } catch (e) {
             consent = {};
         }
-        console.log(consent);
 
         for (let key in parsedUrl) {
             this.dataModel[`ur${key}`] = parsedUrl[key];
