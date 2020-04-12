@@ -123,13 +123,18 @@ export default class Ingestly {
      */
     setConsent(acceptance = {}) {
         let optOut = 0;
-        if (acceptance['cookie'] === true) {
+        if (acceptance['cookie'] === false) {
             optOut = 1;
-            acceptance['cookie'] = false;
+            consent['cookie'] = false;
         } else {
-            acceptance['cookie'] = true;
+            consent['cookie'] = acceptance['cookie'] ? acceptance['cookie'] : config.useCookie;
         }
-        consent['measurement'] = acceptance['measurement'] === false ? true : false;
+        if (acceptance['measurement'] === false) {
+            consent['measurement'] = false;
+        } else {
+            consent['measurement'] = true;
+        }
+        consent['measurement'] = !acceptance['measurement'];
         emitter.emit('consent', {
             key: config.apiKey,
             dc: optOut,
