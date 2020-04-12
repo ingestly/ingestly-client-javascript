@@ -1,14 +1,13 @@
 import Emitter from './emitter';
 import Events from './events';
-import IDM from './idm';
 import Utils from './utils';
 
-const sdkVersion = '0.6.6',
+const sdkVersion = '1.0.0b',
     initTimestamp = +new Date();
 
 let config,
     targetWindow,
-    idm,
+    consent,
     emitter,
     events,
     utils,
@@ -16,7 +15,7 @@ let config,
     parsedReferrer,
     unloadEvent,
     eventHandlerKeys = { media: [], form: [] },
-    prevTimestamp = +new Date();
+    prevTimestamp = initTimestamp;
 
 /**
  * @ignore
@@ -35,18 +34,7 @@ export default class Ingestly {
     config(configObj) {
         config = configObj;
         utils = new Utils();
-        idm = new IDM({
-            pf: config.prefix,
-            so: config.options.session,
-        });
-        emitter = new Emitter({
-            ep: config.endpoint,
-            ak: config.apiKey,
-            sv: sdkVersion,
-            di: idm.deviceId,
-            si: idm.sessionId,
-            ri: idm.rootId,
-        });
+        emitter = new Emitter(config.endpoint);
         targetWindow = config.targetWindow || 'self';
         parsedUrl = utils.parseUrl(window[targetWindow].document.location.href);
         parsedReferrer = utils.parseUrl(window[targetWindow].document.referrer);
@@ -63,8 +51,16 @@ export default class Ingestly {
      * Initialize a page level variables.
      * @param  {Object} dataModel Data model.
      */
-    init(dataModel) {
+    init(dataModel = {}) {
         this.dataModel = dataModel;
+        this.dataModel['key'] = config.apiKey;
+        this.dataModel['sdk'] = `JS-${sdkVersion}`;
+
+        try {
+            consent = JSON.parse(decodeURIComponent(utils.readCookie('ingestlyConsent')));
+        } catch (e) {
+            consent = {};
+        }
 
         for (let key in parsedUrl) {
             this.dataModel[`ur${key}`] = parsedUrl[key];
@@ -122,6 +118,26 @@ export default class Ingestly {
     }
 
     /**
+     * Consent Management
+     * @param  {Object} purposes consent status of purposes for data utilization.
+     */
+    setConsent(purposes = {}) {
+        let optOut = 0;
+        if (purposes['cookie'] === true) {
+            optOut = 1;
+            consent['cookie'] = false;
+        } else {
+            consent['cookie'] = true;
+        }
+        consent['measurement'] = purposes['measurement'] === false ? true : false;
+        emitter.emit('consent', {
+            key: config.apiKey,
+            dc: optOut,
+            ap: encodeURIComponent(JSON.stringify(purposes)),
+        });
+    }
+
+    /**
      * Track an event with additional data.
      * @param  {String} action Action name.
      * @param  {String} category Category name.
@@ -134,24 +150,27 @@ export default class Ingestly {
             category: category,
             sinceInitMs: now - initTimestamp,
             sincePrevMs: now - prevTimestamp,
+            consent: consent
         };
-        const payload = utils.mergeObj([
+        let payload = utils.mergeObj([
             this.dataModel,
             mandatory,
             eventContext,
             utils.getClientInfo(targetWindow),
             'performance' in window[targetWindow] ? utils.getPerformanceInfo(targetWindow) : {},
         ]);
-        prevTimestamp = now;
 
-        if (idm.isNewId) {
-            emitter.sync(payload, result => {
-                idm.setDeviceId(result);
-                idm.isNewId = false;
-            });
+        if (consent['cookie'] === true) {
+            payload['ck'] = true;
+        } else if (consent['cookie'] === false) {
+            payload['ck'] = false;
         } else {
-            emitter.emit(payload);
-            idm.setDeviceId(idm.deviceId);
+            payload['ck'] = config.useCookie ? true : false;
+        }
+
+        prevTimestamp = now;
+        if (consent['measurement'] !== false) {
+            emitter.emit('ingest', payload);
         }
     }
 
