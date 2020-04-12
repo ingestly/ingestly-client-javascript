@@ -163,6 +163,22 @@ You can enable optional tracking features.
 
 - Send a custom beacon on your preferred events.
 
+### Ingestly.setConsent(acceptance)
+
+- Save the acceptance status for purpose of data use such as "cookie", "measurement", "analytics" or any other your own categorization.
+- If you set `cookie` as Boolean type, you can control the SDK to use Cookie or not per a browser.
+- If you set `false` to `measurement`, the SDK will not send beacons.
+- Values will be set as a Cookie by the endpoint.
+
+|key|description|
+|:----|:----|
+|cookie|reserved for Cookie control.|
+|measurement|reserved to enable/disable data transmission.|
+|analytics||
+|personalization||
+|advertisement||
+|sharing||
+
 ### Ingestly.getQueryVal(keyName)
 
 - This method retrieves a value from GET parameter of URL by specifying a key name.

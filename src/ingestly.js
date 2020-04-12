@@ -2,7 +2,7 @@ import Emitter from './emitter';
 import Events from './events';
 import Utils from './utils';
 
-const sdkVersion = '1.0.0b',
+const sdkVersion = '1.0.0',
     initTimestamp = +new Date();
 
 let config,
@@ -119,21 +119,26 @@ export default class Ingestly {
 
     /**
      * Consent Management
-     * @param  {Object} purposes consent status of purposes for data utilization.
+     * @param  {Object} acceptance consent status for each purpose of data utilization.
      */
-    setConsent(purposes = {}) {
+    setConsent(acceptance = {}) {
         let optOut = 0;
-        if (purposes['cookie'] === true) {
+        if (acceptance['cookie'] === false) {
             optOut = 1;
             consent['cookie'] = false;
         } else {
-            consent['cookie'] = true;
+            consent['cookie'] = acceptance['cookie'] ? acceptance['cookie'] : config.useCookie;
         }
-        consent['measurement'] = purposes['measurement'] === false ? true : false;
+        if (acceptance['measurement'] === false) {
+            consent['measurement'] = false;
+        } else {
+            consent['measurement'] = true;
+        }
+        consent['measurement'] = !acceptance['measurement'];
         emitter.emit('consent', {
             key: config.apiKey,
             dc: optOut,
-            ap: encodeURIComponent(JSON.stringify(purposes)),
+            ap: encodeURIComponent(JSON.stringify(acceptance)),
         });
     }
 
@@ -150,7 +155,7 @@ export default class Ingestly {
             category: category,
             sinceInitMs: now - initTimestamp,
             sincePrevMs: now - prevTimestamp,
-            consent: consent
+            consent: consent,
         };
         let payload = utils.mergeObj([
             this.dataModel,
