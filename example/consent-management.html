@@ -35,10 +35,10 @@
                         <button id="opt-in">opt in</button>
                         <script>
                             document.getElementById('opt-out').addEventListener('click', function () {
-                                Ingestly.setConsent({identification: 0});
+                                Ingestly.setConsent({cookie: false});
                             }, false)
                             document.getElementById('opt-in').addEventListener('click', function () {
-                                Ingestly.setConsent({identification: 1});
+                                Ingestly.setConsent({cookie: true});
                             }, false)
                         </script>
 

@@ -123,13 +123,13 @@ export default class Ingestly {
      */
     setConsent(purposes = {}) {
         let optOut = 0;
-        if (Number(purposes['identification']) === 0) {
+        if (purposes['cookie'] === true) {
             optOut = 1;
-            consent['identification'] = 0;
+            consent['cookie'] = false;
         } else {
-            consent['identification'] = 1;
+            consent['cookie'] = true;
         }
-        consent['measurement'] = Number(purposes['measurement']) === 0 ? 0 : 1;
+        consent['measurement'] = purposes['measurement'] === false ? true : false;
         emitter.emit('consent', {
             key: config.apiKey,
             dc: optOut,
@@ -160,16 +160,16 @@ export default class Ingestly {
             'performance' in window[targetWindow] ? utils.getPerformanceInfo(targetWindow) : {},
         ]);
 
-        if (Number(consent['identification']) === 1) {
+        if (consent['cookie'] === true) {
             payload['ck'] = true;
-        } else if (Number(consent['identification']) === 0) {
+        } else if (consent['cookie'] === false) {
             payload['ck'] = false;
         } else {
             payload['ck'] = config.useCookie ? true : false;
         }
 
         prevTimestamp = now;
-        if (Number(consent['measurement']) !== 0) {
+        if (consent['measurement'] !== false) {
             emitter.emit('ingest', payload);
         }
     }
