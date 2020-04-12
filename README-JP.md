@@ -163,6 +163,22 @@ npm run build
 
 - お好きなイベントに対してカスタムイベントを送信します
 
+### Ingestly.setConsent(acceptance)
+
+- データ利用の目的、例えば「cookie」「measurement」「analytics」や他の任意の分類について同意状態を保存します
+- Boolean型で `cookie` を指定すると、SDKがCookieを使うかどうかを制御できます
+- もし `measurement` に `false` をセットすると、SDKはデータを送信しなくなります
+- 値はエンドポイントによってCookieとしてセットされます
+
+|key|description|
+|:----|:----|
+|cookie|Cookie制御に予約|
+|measurement|データ送信の有効化/無効化に予約|
+|analytics||
+|personalization||
+|advertisement||
+|sharing||
+
 ### Ingestly.getQueryVal(keyName)
 
 - このメソッドはGETパラメータの キー-バリュー ペアから、指定したキー名に対応する値を返します
