@@ -440,11 +440,29 @@ export default class Ingestly {
     }
 
     /**
+     * Parse an URL string and return a map object.
+     * @param  {String} url An url string to be parsed.
+     * @return {Object} An object of each part of the URL, and ke-value pairs of GET query string.
+     */
+    parseUrl(url) {
+        return utils.parseUrl(url);
+    }
+
+    /**
      * Get a value for specified key name in GET parameter.
      * @param  {String} key A key name.
      * @return {String} A value for the specified key.
      */
     getQueryVal(key) {
         return parsedUrl.Query[key] ? parsedUrl.Query[key] : '';
+    }
+
+    /**
+     * Return a value of specified key.
+     * @param  {String} key A name of Cookie
+     * @return {String} A value of the Cookie
+     */
+    getCookieVal(key) {
+        return utils.readCookie(key);
     }
 }
