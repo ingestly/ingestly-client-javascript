@@ -460,9 +460,10 @@ export default class Ingestly {
     /**
      * Return a value of specified key.
      * @param  {String} key A name of Cookie
+     * @param  {String} targetWindow A string for specifying the target window (this, parent, top)
      * @return {String} A value of the Cookie
      */
-    getCookieVal(key) {
-        return utils.readCookie(key);
+    getCookieVal(key, targetWindow = 'this') {
+        return utils.readCookie(key, targetWindow);
     }
 }
