@@ -8,7 +8,7 @@
     "build": "webpack",
     "jsdoc": "jsdoc ./src -c jsdoc.conf.json",
     "lint": "eslint ./src",
-    "prepare": "npm run build",
+    "prepare": "yarn run build",
     "format": "prettier --write 'src/*.js'"
   },
   "repository": {
