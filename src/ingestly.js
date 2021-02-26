@@ -2,7 +2,7 @@ import Emitter from './emitter';
 import Events from './events';
 import Utils from './utils';
 
-const sdkVersion = '1.0.0',
+const sdkVersion = '1.0.1',
     initTimestamp = +new Date();
 
 let config,
@@ -228,7 +228,7 @@ export default class Ingestly {
             clickEvent => {
                 const targetAttribute = config.options.clicks.targetAttr || false;
                 const trackableElement = utils.queryMatch(
-                    'a, button, input, [role="button"]',
+                    'a, button, [role="button"]',
                     clickEvent.target,
                     targetAttribute,
                     targetWindow
