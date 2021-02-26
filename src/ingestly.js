@@ -228,7 +228,7 @@ export default class Ingestly {
             clickEvent => {
                 const targetAttribute = config.options.clicks.targetAttr || false;
                 const trackableElement = utils.queryMatch(
-                    'a, button, input, [role="button"]',
+                    'a, button, [role="button"]',
                     clickEvent.target,
                     targetAttribute,
                     targetWindow
