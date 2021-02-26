@@ -244,7 +244,10 @@ export default class {
                 let elm = target.tagName.toLowerCase();
                 if (elm !== 'html' && elm !== 'body') {
                     if (target.id) {
-                        elm += `.${target.id}`;
+                        elm += `#${target.id}`;
+                    }
+                    if (target.className) {
+                        elm += `.${target.className}`;
                     }
                     p.unshift(elm);
                 }
