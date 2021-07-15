@@ -26,7 +26,12 @@ const xhr = (url, callback) => {
     xhr.open('GET', url, true);
     xhr.timeout = 4000;
     xhr.withCredentials = true;
-    xhr.send();
+    try{
+        xhr.send();
+    }catch(e){
+
+    }
+    
     return true;
 };
 
@@ -77,7 +82,11 @@ export default class {
                     const signal = controller.signal;
                     const option = { signal, method: 'POST', cache: 'no-store', keepalive: true };
                     setTimeout(() => controller.abort(), 4000);
-                    window.fetch(url, option);
+                    try{
+                        window.fetch(url, option);
+                    }catch(e){
+                    }
+                    
                 } else {
                     xhr(url);
                 }
