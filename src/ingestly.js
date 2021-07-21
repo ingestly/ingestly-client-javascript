@@ -2,7 +2,7 @@ import Emitter from './emitter';
 import Events from './events';
 import Utils from './utils';
 
-const sdkVersion = '1.0.2',
+const sdkVersion = '1.0.3',
     initTimestamp = +new Date();
 
 let config,
