@@ -25,59 +25,16 @@ export default class {
     }
 
     getClientInfo(targetWindow) {
-        const ua = navigator.userAgent;
         let orientation = screen.orientation || screen.mozOrientation || screen.msOrientation || 'not-supported';
         if (typeof orientation === 'object') {
             orientation = orientation.type;
         }
-        let deviceType, deviceOs;
-        if (ua.match(/iPhone|iPod/g)) {
-            deviceOs = 'iOS';
-            deviceType = 'Mobile';
-        } else if (ua.match(/iPad/g)) {
-            deviceOs = 'iOS';
-            deviceType = 'Tablet';
-        } else if (ua.match(/Android/g)) {
-            if (ua.match(/Windows Phone/g)) {
-                deviceOs = 'Windows Phone';
-                deviceType = 'Mobile';
-            } else {
-                deviceOs = 'Android';
-                if (ua.match(/Mobile/g)) {
-                    deviceType = 'Mobile';
-                } else {
-                    deviceType = 'Tablet';
-                }
-            }
-        } else if (ua.match(/Windows/g)) {
-            deviceOs = 'Windows';
-            deviceType = 'Desktop';
-        } else if (ua.match(/Mac OS X/g)) {
-            deviceOs = 'Mac OS X';
-            deviceType = 'Desktop';
-        } else if (ua.match(/Linux/g)) {
-            deviceOs = 'Linux';
-            deviceType = 'Desktop';
-        } else if (ua.match(/CrOS/g)) {
-            deviceOs = 'Chrome OS';
-            deviceType = 'Desktop';
-        } else if (ua.match(/Nintendo|PlayStation|Xbox/g)) {
-            deviceOs = 'Other';
-            deviceType = 'Game';
-        } else {
-            deviceOs = 'Other';
-            deviceType = 'Unknown';
-        }
-
         return {
             vpHeight: window[targetWindow].innerHeight,
             vpWidth: window[targetWindow].innerWidth,
             scHeight: window[targetWindow].screen.height,
             scWidth: window[targetWindow].screen.width,
             scOrientation: orientation,
-            dvType: deviceType,
-            dvOs: deviceOs,
-            dvPlatform: navigator.platform,
         };
     }
 
