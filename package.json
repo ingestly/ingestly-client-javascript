@@ -2,7 +2,7 @@
   "name": "ingestly-client-javascript",
   "version": "1.0.3",
   "description": "Ingestly Client JavaScript SDK for modern web analytics.",
-  "main": "dist/ingestly.js",
+  "main": "src/ingestly.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
