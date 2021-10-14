@@ -57,7 +57,7 @@ export default class Ingestly {
         this.dataModel['sdk'] = `JS-${sdkVersion}`;
 
         try {
-            consent = JSON.parse(decodeURIComponent(utils.readCookie('ingestlyConsent')));
+            consent = JSON.parse(decodeURIComponent(utils.readCookie('ingestlyConsent', targetWindow)));
         } catch (e) {
             consent = {};
         }
@@ -225,7 +225,7 @@ export default class Ingestly {
         eventHandlerKeys['click'] = events.addListener(
             window[targetWindow].document.body,
             'click',
-            clickEvent => {
+            (clickEvent) => {
                 const targetAttribute = config.options.clicks.targetAttr || false;
                 const trackableElement = utils.queryMatch(
                     'a, button, [role="button"]',
@@ -366,7 +366,7 @@ export default class Ingestly {
             eventHandlerKeys['media'][targetEvents[i]] = events.addListener(
                 window[targetWindow].document.body,
                 targetEvents[i],
-                event => {
+                (event) => {
                     let metaContext = utils.getMediaInfo(event.target);
                     this.trackAction(
                         event.type,
@@ -382,7 +382,7 @@ export default class Ingestly {
         eventHandlerKeys['media']['timeupdate'] = events.addListener(
             window[targetWindow].document,
             'timeupdate',
-            event => {
+            (event) => {
                 if (flags[event.target.src]) {
                     return false;
                 }
@@ -421,7 +421,7 @@ export default class Ingestly {
                 eventHandlerKeys['form'][targetEvents[j]] = events.addListener(
                     this.trackFormTargets[i],
                     targetEvents[j],
-                    event => {
+                    (event) => {
                         metaContext = utils.getFormStats(metaContext, targetEvents[j], event.target, initTimestamp);
                     },
                     true

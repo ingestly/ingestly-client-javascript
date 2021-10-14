@@ -189,7 +189,7 @@ export default class {
             let matches = (
                 target.matches ||
                 target.msMatchesSelector ||
-                function() {
+                function () {
                     return false;
                 }
             ).bind(target);
@@ -274,8 +274,17 @@ export default class {
         return result;
     }
 
-    readCookie(key) {
-        const cookies = window.document.cookie || '';
-        return (`; ${cookies};`.match(`; ${key}=([^\S;]*)`) || [])[1];
+    readCookie(key, targetWindow) {
+        const cookies = window[targetWindow].document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i];
+            while (cookie.charAt(0) === ' ') {
+                cookie = cookie.substring(1, cookie.length);
+            }
+            if (cookie.indexOf(`${key}=`) === 0) {
+                return cookie.substring(`${key}=`.length, cookie.length);
+            }
+        }
+        return '';
     }
 }
