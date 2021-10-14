@@ -31,13 +31,13 @@ Also, Ingestly can be implemented seamlessly into your existing web site with in
 
 ```sh
 # Install required node_modules (only for build process. no dependencies.)
-yarn install
+npm install
 
 # ESLINT under ./src
-yarn run lint
+npm run lint
 
 # Build the SDK into ./dist
-yarn run build
+npm run build
 ```
 
 ### Install to your website

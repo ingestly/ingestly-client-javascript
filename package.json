@@ -8,7 +8,6 @@
     "build": "webpack",
     "jsdoc": "jsdoc ./src -c jsdoc.conf.json",
     "lint": "eslint ./src",
-    "prepare": "yarn run build",
     "format": "prettier --write 'src/*.js'"
   },
   "repository": {
@@ -21,17 +20,16 @@
     "url": "https://github.com/ingestly/ingestly-client-javascript/issues"
   },
   "homepage": "https://github.com/ingestly/ingestly-client-javascript#readme",
-  "dependencies": {},
   "devDependencies": {
-    "@babel/core": "^7.9.0",
-    "@babel/plugin-proposal-decorators": "^7.8.3",
-    "@babel/preset-env": "^7.9.5",
-    "babel-eslint": "^10.1.0",
-    "babel-loader": "^8.1.0",
-    "eslint": "^5.16.0",
-    "jsdoc": "^3.6.4",
-    "prettier": "^1.19.1",
-    "webpack": "^4.42.1",
-    "webpack-cli": "^3.3.11"
+    "@babel/core": "^7.15.8",
+    "@babel/eslint-parser": "^7.15.8",
+    "@babel/plugin-proposal-decorators": "^7.15.8",
+    "@babel/preset-env": "^7.15.8",
+    "babel-loader": "^8.2.2",
+    "eslint": "^8.0.1",
+    "jsdoc": "^3.6.7",
+    "prettier": "^2.4.1",
+    "webpack": "^5.58.2",
+    "webpack-cli": "^4.9.0"
   }
 }

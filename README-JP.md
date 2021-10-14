@@ -31,13 +31,13 @@ Ingestlyは、Fastlyを活用してフロントエンドからGoogle BigQueryへ
 
 ```sh
 # 必要なnode_modulesのインストール（ビルド処理用。SDKに依存関係はありません。）
-yarn install
+npm install
 
 # ./src 以下に対する ESLINT
-yarn run lint
+npm run lint
 
 # ./dist の中にSDKをビルドします
-yarn run build
+npm run build
 ```
 
 ### ウェブサイトへの導入
