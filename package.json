@@ -21,15 +21,15 @@
   },
   "homepage": "https://github.com/ingestly/ingestly-client-javascript#readme",
   "devDependencies": {
-    "@babel/core": "^7.15.8",
-    "@babel/eslint-parser": "^7.15.8",
-    "@babel/plugin-proposal-decorators": "^7.15.8",
-    "@babel/preset-env": "^7.15.8",
-    "babel-loader": "^8.2.2",
-    "eslint": "^8.0.1",
-    "jsdoc": "^3.6.7",
-    "prettier": "^2.4.1",
-    "webpack": "^5.58.2",
-    "webpack-cli": "^4.9.0"
+    "@babel/core": "^7.17.0",
+    "@babel/eslint-parser": "^7.17.0",
+    "@babel/plugin-proposal-decorators": "^7.17.0",
+    "@babel/preset-env": "^7.16.11",
+    "babel-loader": "^8.2.3",
+    "eslint": "^8.8.0",
+    "jsdoc": "^3.6.10",
+    "prettier": "^2.5.1",
+    "webpack": "^5.68.0",
+    "webpack-cli": "^4.9.2"
   }
 }
