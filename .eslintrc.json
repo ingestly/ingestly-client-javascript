@@ -28,6 +28,10 @@
     "semi": [
       "warn",
       "always"
+    ],
+    "no-empty": [
+      "error",
+      { "allowEmptyCatch": true }
     ]
   }
 }
